@@ -1,4 +1,4 @@
-// Command scanly is a document scanner: it finds pages in photos,
+// Command doclens is a document scanner: it finds pages in photos,
 // flattens and cleans them up, and keeps them as PDF-ready documents.
 package main
 
@@ -14,8 +14,8 @@ import (
 	"gioui.org/font/opentype"
 	"github.com/xmhrnx/giode"
 
-	"github.com/mehran/scanly/internal/library"
-	"github.com/mehran/scanly/ui"
+	"github.com/xmhrnx/doclens/internal/library"
+	"github.com/xmhrnx/doclens/ui"
 )
 
 //go:embed assets/icon.png
@@ -37,7 +37,7 @@ func main() {
 	if err := giode.RegisterIconsFS(iconFS, "assets/icons"); err != nil {
 		log.Fatal(err)
 	}
-	giode.SecureStore.Service = "com.mehran.scanly"
+	giode.SecureStore.Service = "com.xmhrnx.doclens"
 
 	dir, err := dataDir()
 	if err != nil {
@@ -54,7 +54,7 @@ func main() {
 
 	var u *ui.App
 	app := giode.New(giode.Config{
-		Title:               "Scanly",
+		Title:               "DocLens",
 		Size:                image.Pt(420, 860),
 		MinWidth:            360,
 		MinHeight:           600,
@@ -99,6 +99,6 @@ func dataDir() (string, error) {
 	if err != nil {
 		return "", err
 	}
-	dir := filepath.Join(base, "Scanly")
+	dir := filepath.Join(base, "DocLens")
 	return dir, os.MkdirAll(dir, 0o755)
 }

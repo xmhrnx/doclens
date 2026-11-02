@@ -9,7 +9,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/mehran/scanly/internal/scan"
+	"github.com/xmhrnx/doclens/internal/scan"
 )
 
 // Layout says how a document's pages are put on paper.

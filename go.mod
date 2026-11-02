@@ -1,4 +1,4 @@
-module github.com/mehran/scanly
+module github.com/xmhrnx/doclens
 
 go 1.26.6
 

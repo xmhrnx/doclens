@@ -6,7 +6,7 @@ import (
 	"github.com/xmhrnx/giode"
 	"github.com/xmhrnx/giode/components/slider"
 
-	"github.com/mehran/scanly/internal/scan"
+	"github.com/xmhrnx/doclens/internal/scan"
 )
 
 // filterNames label the filters.

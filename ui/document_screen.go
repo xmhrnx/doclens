@@ -9,7 +9,7 @@ import (
 	"github.com/xmhrnx/giode/components/scroll"
 	"github.com/xmhrnx/giode/styles/properties"
 
-	"github.com/mehran/scanly/internal/library"
+	"github.com/xmhrnx/doclens/internal/library"
 )
 
 // docMode is what tapping a page does on the document screen.

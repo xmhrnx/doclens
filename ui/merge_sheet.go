@@ -6,7 +6,7 @@ import (
 	"github.com/xmhrnx/giode"
 	"github.com/xmhrnx/giode/components/sheet"
 
-	"github.com/mehran/scanly/internal/library"
+	"github.com/xmhrnx/doclens/internal/library"
 )
 
 // mergeSheet appends another document's pages to this one.

@@ -4,8 +4,8 @@ import (
 	"github.com/xmhrnx/giode"
 	"github.com/xmhrnx/giode/components/sheet"
 
-	"github.com/mehran/scanly/internal/library"
-	"github.com/mehran/scanly/internal/pdfpages"
+	"github.com/xmhrnx/doclens/internal/library"
+	"github.com/xmhrnx/doclens/internal/pdfpages"
 )
 
 // scanModeSheet asks how to scan before opening the camera.

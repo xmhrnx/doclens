@@ -7,8 +7,8 @@ import (
 	"github.com/xmhrnx/giode"
 	"github.com/xmhrnx/giode/components/sheet"
 
-	"github.com/mehran/scanly/internal/library"
-	"github.com/mehran/scanly/internal/scan"
+	"github.com/xmhrnx/doclens/internal/library"
+	"github.com/xmhrnx/doclens/internal/scan"
 )
 
 // signatureSheet is a pad for drawing a new signature, which is saved

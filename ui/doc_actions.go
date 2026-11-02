@@ -7,7 +7,7 @@ import (
 	"github.com/xmhrnx/giode/components/sheet"
 	"github.com/xmhrnx/giode/printing"
 
-	"github.com/mehran/scanly/internal/library"
+	"github.com/xmhrnx/doclens/internal/library"
 )
 
 // docActions is the bottom sheet of things to do with a document (or a

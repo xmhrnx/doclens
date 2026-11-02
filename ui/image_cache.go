@@ -6,8 +6,8 @@ import (
 
 	"github.com/xmhrnx/giode/styles/properties"
 
-	"github.com/mehran/scanly/internal/library"
-	"github.com/mehran/scanly/internal/scan"
+	"github.com/xmhrnx/doclens/internal/library"
+	"github.com/xmhrnx/doclens/internal/scan"
 )
 
 // screenSide is the longest side of page images shown on screen: sharp

@@ -47,7 +47,7 @@ func (l *lockScreen) unlockWithBiometric() {
 	go func() {
 		err := biometric.Authenticate(context.Background(), a.g, biometric.Options{
 			Reason: "Unlock your documents",
-			Title:  "Unlock Scanly",
+			Title:  "Unlock DocLens",
 			Cancel: "Use PIN",
 		})
 		a.g.Post(func() {
@@ -106,7 +106,7 @@ func (l *lockScreen) lockOut() {
 
 func (l *lockScreen) view() giode.Element {
 	if !l.canUseBiometric() {
-		return pinScreenLayout("Scanly is locked", "Enter your PIN", l.message, l.pad)
+		return pinScreenLayout("DocLens is locked", "Enter your PIN", l.message, l.pad)
 	}
 	if !l.asked {
 		// Offer the fingerprint or face as soon as the lock shows.
@@ -118,7 +118,7 @@ func (l *lockScreen) view() giode.Element {
 		label, name = "Use Face ID", "scan-face"
 	}
 	return giode.Box(giode.Styles{Width: -1, Height: -1},
-		pinScreenLayout("Scanly is locked", "Enter your PIN", l.message, l.pad),
+		pinScreenLayout("DocLens is locked", "Enter your PIN", l.message, l.pad),
 		giode.Box(giode.Styles{Position: giode.PositionAbsolute, Left: giode.Flush, Right: giode.Flush, Bottom: 28, Justify: giode.JustifyCenter, ZIndex: 2},
 			actionButton("lockBio", buttonGhost, name, label, false, l.unlockWithBiometric)),
 	)

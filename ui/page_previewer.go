@@ -5,7 +5,7 @@ import (
 
 	"github.com/xmhrnx/giode/styles/properties"
 
-	"github.com/mehran/scanly/internal/scan"
+	"github.com/xmhrnx/doclens/internal/scan"
 )
 
 // previewKey identifies a preview: a page with all its settings.

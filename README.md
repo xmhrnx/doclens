@@ -1,4 +1,4 @@
-# Scanly
+# DocLens
 
 A document scanner for Android and iOS built with [Giode](https://github.com/xmhrnx/giode).
 

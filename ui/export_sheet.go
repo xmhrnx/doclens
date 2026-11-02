@@ -17,8 +17,8 @@ import (
 	"github.com/xmhrnx/giode/ocr"
 	"github.com/xmhrnx/giode/printing"
 
-	"github.com/mehran/scanly/internal/library"
-	"github.com/mehran/scanly/internal/pdf"
+	"github.com/xmhrnx/doclens/internal/library"
+	"github.com/xmhrnx/doclens/internal/pdf"
 )
 
 // exportSheet turns a document into a PDF, JPEGs or one long image,
@@ -345,7 +345,7 @@ func (e *exportSheet) deliver(title string, files []exportFile, dest destination
 	switch dest {
 	case toPhotos:
 		for _, p := range paths {
-			if err := a.g.SaveToPhotos(ctx, p, "Scanly"); err != nil {
+			if err := a.g.SaveToPhotos(ctx, p, "DocLens"); err != nil {
 				return err
 			}
 		}

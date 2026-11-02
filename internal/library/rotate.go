@@ -1,6 +1,6 @@
 package library
 
-import "github.com/mehran/scanly/internal/scan"
+import "github.com/xmhrnx/doclens/internal/scan"
 
 // Rotate turns a finished page a quarter turn clockwise (or back, with
 // -1), keeping its drawings and signatures where they were on the

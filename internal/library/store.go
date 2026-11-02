@@ -14,7 +14,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/mehran/scanly/internal/scan"
+	"github.com/xmhrnx/doclens/internal/scan"
 )
 
 // Store is the library on disk. Its fields are changed on one

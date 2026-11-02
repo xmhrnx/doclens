@@ -3,8 +3,8 @@ package ui
 import (
 	"sync"
 
-	"github.com/mehran/scanly/internal/library"
-	"github.com/mehran/scanly/internal/scan"
+	"github.com/xmhrnx/doclens/internal/library"
+	"github.com/xmhrnx/doclens/internal/scan"
 )
 
 // renderInBackground renders finished pages and their thumbnails so

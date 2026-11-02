@@ -15,8 +15,8 @@ import (
 	"github.com/xmhrnx/giode/components/toggle"
 	"github.com/xmhrnx/giode/ocr"
 
-	"github.com/mehran/scanly/internal/library"
-	"github.com/mehran/scanly/internal/scan"
+	"github.com/xmhrnx/doclens/internal/library"
+	"github.com/xmhrnx/doclens/internal/scan"
 )
 
 var themes = []library.Theme{library.ThemeSystem, library.ThemeLight, library.ThemeDark}
@@ -117,7 +117,7 @@ func (s *settingsScreen) content() giode.Element {
 		settingsGroup("Export", optionLabel("Page size"), s.size, optionLabel("Quality"), s.quality, s.margins, s.author),
 		settingsGroup("Appearance", s.theme),
 		settingsGroup("Privacy", s.lock, s.bioSwitch(),
-			giode.Text("Scanly locks when it leaves the screen. Your documents never leave this device unless you share them.", with(tCaption, giode.Styles{LineHeight: 19}))),
+			giode.Text("DocLens locks when it leaves the screen. Your documents never leave this device unless you share them.", with(tCaption, giode.Styles{LineHeight: 19}))),
 		s.signatures(),
 		s.about(),
 	)
@@ -168,7 +168,7 @@ func (s *settingsScreen) about() giode.Element {
 			giode.Box(giode.Styles{Width: 40, Height: 40, BorderRadius: 12, BackgroundGradient: brandGradient,
 				Align: giode.AlignCenter, Justify: giode.JustifyCenter}, icon("scan-line", 20, "#FFFFFF")),
 			giode.Stack(giode.Styles{FlexGrow: 1, Gap: 2},
-				giode.Text("Scanly "+Version, tHeading),
+				giode.Text("DocLens "+Version, tHeading),
 				giode.Text(fmt.Sprintf("%d documents · %d pages", len(st.Docs), pages), tCaption))),
 		sheetRow("about", "licenses", "info", "Open-source licenses", "", false, func() { s.a.push(newLicensesScreen(s.a)) }),
 	)

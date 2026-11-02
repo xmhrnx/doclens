@@ -2,8 +2,8 @@
 # Reference: https://github.com/xmhrnx/giode-cli#giodetoml
 
 [app]
-name = "Scanly"
-id = "com.mehran.scanly"     # reverse-DNS, unique to the app; stores never let it change
+name = "DocLens"
+id = "com.xmhrnx.doclens"     # reverse-DNS, unique to the app; stores never let it change
 version = "1.0.0"
 build = 1                    # raise for every store upload (giode bump)
 icon = "assets/icon.png"
@@ -28,7 +28,7 @@ java = ["android/java"]       # PdfPages.java: renders PDF pages for "Import PDF
 min_os = 15
 
 [ios.usage]
-camera = "Scanly uses the camera to scan documents."
-photos = "Scanly turns photos you pick into scans."
-photos_add = "Scanly saves scanned pages to your photo library when you ask."
-faceid = "Scanly can unlock your documents with Face ID."
+camera = "DocLens uses the camera to scan documents."
+photos = "DocLens turns photos you pick into scans."
+photos_add = "DocLens saves scanned pages to your photo library when you ask."
+faceid = "DocLens can unlock your documents with Face ID."

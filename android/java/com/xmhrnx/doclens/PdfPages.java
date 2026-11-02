@@ -1,4 +1,4 @@
-package com.mehran.scanly;
+package com.xmhrnx.doclens;
 
 import android.graphics.Bitmap;
 import android.graphics.Color;
@@ -10,7 +10,7 @@ import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.Map;
 
-// PdfPages renders PDF pages for Scanly's PDF import (internal/pdfpages).
+// PdfPages renders PDF pages for DocLens's PDF import (internal/pdfpages).
 // PdfRenderer keeps one page open at a time, so each document is used
 // under its own lock.
 public final class PdfPages {

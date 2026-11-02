@@ -9,7 +9,7 @@ import (
 	"github.com/xmhrnx/giode/components/zoom"
 	"github.com/xmhrnx/giode/ocr"
 
-	"github.com/mehran/scanly/internal/library"
+	"github.com/xmhrnx/doclens/internal/library"
 )
 
 // pageScreen shows one finished page large, with the page tools.

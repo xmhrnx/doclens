@@ -8,7 +8,7 @@ import (
 	"github.com/xmhrnx/giode/components/input"
 	"github.com/xmhrnx/giode/components/scroll"
 
-	"github.com/mehran/scanly/internal/library"
+	"github.com/xmhrnx/doclens/internal/library"
 )
 
 // Folder filters on the home screen besides real folders.
@@ -102,7 +102,7 @@ func (h *homeScreen) header() giode.Element {
 			Align: giode.AlignCenter, Justify: giode.JustifyCenter, BoxShadow: shadowFab, Margin: giode.Inset{Right: 12}},
 			icon("scan-line", 24, "#FFFFFF")),
 		giode.Stack(giode.Styles{FlexGrow: 1, Gap: 2},
-			giode.Text("Scanly", with(tDisplay, giode.Styles{FontSize: 26})),
+			giode.Text("DocLens", with(tDisplay, giode.Styles{FontSize: 26})),
 			giode.Text(sub, tCaption),
 		),
 		iconTile("settings", "settings", false, func() { h.a.push(newSettingsScreen(h.a)) }),
@@ -226,7 +226,7 @@ func (h *homeScreen) sectionTitle(docs []*library.Document) giode.Element {
 }
 
 func (h *homeScreen) emptyState() giode.Element {
-	msg, sub := "No documents yet", "Tap Scan to capture your first page. Scanly finds the edges, flattens the page and cleans it up."
+	msg, sub := "No documents yet", "Tap Scan to capture your first page. DocLens finds the edges, flattens the page and cleans it up."
 	if h.search.Text() != "" || h.folder != filterAll {
 		msg, sub = "Nothing here", "No documents match. Try another search or folder."
 	}
