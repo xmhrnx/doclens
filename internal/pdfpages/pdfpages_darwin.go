@@ -95,7 +95,8 @@ func open(path string) (platformDoc, int, error) {
 	switch {
 	case status == 2:
 		return platformDoc{}, 0, ErrPassword
-	case doc == nil:
+	// cgo turns Core Foundation reference types into integers.
+	case doc == 0:
 		return platformDoc{}, 0, errors.New("this file isn't a readable PDF")
 	}
 	return platformDoc{doc: doc}, int(C.CGPDFDocumentGetNumberOfPages(doc)), nil
