@@ -6,9 +6,9 @@ package pdfpages
 #include <stdlib.h>
 #include <CoreGraphics/CoreGraphics.h>
 
-// scanlyPDFOpen opens a PDF. *status is 0 on success, 1 when the file
+// doclensPDFOpen opens a PDF. *status is 0 on success, 1 when the file
 // can't be read and 2 when it needs a password.
-static CGPDFDocumentRef scanlyPDFOpen(const char *path, int *status) {
+static CGPDFDocumentRef doclensPDFOpen(const char *path, int *status) {
 	*status = 1;
 	CFURLRef url = CFURLCreateFromFileSystemRepresentation(NULL, (const UInt8 *)path, strlen(path), false);
 	if (url == NULL) {
@@ -29,9 +29,9 @@ static CGPDFDocumentRef scanlyPDFOpen(const char *path, int *status) {
 	return doc;
 }
 
-// scanlyPDFPageSize returns page i's (from 1) size in points as shown,
+// doclensPDFPageSize returns page i's (from 1) size in points as shown,
 // rotation included.
-static void scanlyPDFPageSize(CGPDFDocumentRef doc, int i, double *w, double *h) {
+static void doclensPDFPageSize(CGPDFDocumentRef doc, int i, double *w, double *h) {
 	*w = *h = 0;
 	CGPDFPageRef page = CGPDFDocumentGetPage(doc, i);
 	if (page == NULL) {
@@ -47,9 +47,9 @@ static void scanlyPDFPageSize(CGPDFDocumentRef doc, int i, double *w, double *h)
 	}
 }
 
-// scanlyPDFRender draws page i (from 1) into pix, w by h RGBA pixels, on
+// doclensPDFRender draws page i (from 1) into pix, w by h RGBA pixels, on
 // white.
-static int scanlyPDFRender(CGPDFDocumentRef doc, int i, void *pix, int w, int h) {
+static int doclensPDFRender(CGPDFDocumentRef doc, int i, void *pix, int w, int h) {
 	CGPDFPageRef page = CGPDFDocumentGetPage(doc, i);
 	if (page == NULL) {
 		return 0;
@@ -64,7 +64,7 @@ static int scanlyPDFRender(CGPDFDocumentRef doc, int i, void *pix, int w, int h)
 	CGContextFillRect(ctx, CGRectMake(0, 0, w, h));
 	CGContextSetInterpolationQuality(ctx, kCGInterpolationHigh);
 	double pw, ph;
-	scanlyPDFPageSize(doc, i, &pw, &ph);
+	doclensPDFPageSize(doc, i, &pw, &ph);
 	// CGPDFPageGetDrawingTransform never scales up, so draw into a
 	// page-sized rectangle and scale the context to the bitmap.
 	if (pw > 0 && ph > 0) {
@@ -91,7 +91,7 @@ func open(path string) (platformDoc, int, error) {
 	cp := C.CString(path)
 	defer C.free(unsafe.Pointer(cp))
 	var status C.int
-	doc := C.scanlyPDFOpen(cp, &status)
+	doc := C.doclensPDFOpen(cp, &status)
 	switch {
 	case status == 2:
 		return platformDoc{}, 0, ErrPassword
@@ -103,13 +103,13 @@ func open(path string) (platformDoc, int, error) {
 
 func (d platformDoc) pageSize(i int) (float64, float64, error) {
 	var w, h C.double
-	C.scanlyPDFPageSize(d.doc, C.int(i+1), &w, &h)
+	C.doclensPDFPageSize(d.doc, C.int(i+1), &w, &h)
 	return float64(w), float64(h), nil
 }
 
 func (d platformDoc) render(i, w, h int) ([]byte, error) {
 	pix := make([]byte, w*h*4)
-	if C.scanlyPDFRender(d.doc, C.int(i+1), unsafe.Pointer(&pix[0]), C.int(w), C.int(h)) == 0 {
+	if C.doclensPDFRender(d.doc, C.int(i+1), unsafe.Pointer(&pix[0]), C.int(w), C.int(h)) == 0 {
 		return nil, errors.New("couldn't draw the PDF page")
 	}
 	return pix, nil

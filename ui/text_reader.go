@@ -9,7 +9,7 @@ import (
 	"github.com/xmhrnx/giode"
 	"github.com/xmhrnx/giode/ocr"
 
-	"github.com/mehran/scanly/internal/library"
+	"github.com/xmhrnx/doclens/internal/library"
 )
 
 // readText recognizes the text on a finished page image, with word

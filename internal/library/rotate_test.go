@@ -4,7 +4,7 @@ import (
 	"math"
 	"testing"
 
-	"github.com/mehran/scanly/internal/scan"
+	"github.com/xmhrnx/doclens/internal/scan"
 )
 
 func TestRotateKeepsAnnotations(t *testing.T) {

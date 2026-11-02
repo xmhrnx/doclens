@@ -6,7 +6,7 @@ import (
 	"image/color"
 	"testing"
 
-	"github.com/mehran/scanly/internal/scan"
+	"github.com/xmhrnx/doclens/internal/scan"
 )
 
 func TestStoreRoundTrip(t *testing.T) {

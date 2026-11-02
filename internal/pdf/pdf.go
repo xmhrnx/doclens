@@ -105,7 +105,7 @@ func Write(out io.Writer, pages []Page, opts Options) error {
 	date := "D:" + now.Format("20060102150405") + tz
 	w.begin(info)
 	w.raw("<< /Producer %s /Creator %s /CreationDate %s /ModDate %s",
-		w.str(info, "Scanly"), w.str(info, "Scanly"), w.str(info, date), w.str(info, date))
+		w.str(info, "DocLens"), w.str(info, "DocLens"), w.str(info, date), w.str(info, date))
 	if opts.Title != "" {
 		w.raw(" /Title %s", w.str(info, opts.Title))
 	}

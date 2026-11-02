@@ -6,7 +6,7 @@ import (
 	"github.com/xmhrnx/giode"
 	"github.com/xmhrnx/giode/components/zoom"
 
-	"github.com/mehran/scanly/internal/scan"
+	"github.com/xmhrnx/doclens/internal/scan"
 )
 
 // cropScreen lets the user check and adjust each page's outline.

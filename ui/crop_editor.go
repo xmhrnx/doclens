@@ -15,7 +15,7 @@ import (
 	"gioui.org/unit"
 	"github.com/xmhrnx/giode"
 
-	"github.com/mehran/scanly/internal/scan"
+	"github.com/xmhrnx/doclens/internal/scan"
 )
 
 // cropEditor shows a photo with the page outline over it. The four

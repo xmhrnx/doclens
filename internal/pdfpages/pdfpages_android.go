@@ -8,9 +8,9 @@ import (
 
 const supported = true
 
-// class is the app's Java renderer, android/java/com/mehran/scanly/PdfPages.java,
+// class is the app's Java renderer, android/java/com/xmhrnx/doclens/PdfPages.java,
 // compiled in by the giode CLI (android.java in giode.toml).
-const class = "com/mehran/scanly/PdfPages"
+const class = "com/xmhrnx/doclens/PdfPages"
 
 type platformDoc struct{ id int }
 

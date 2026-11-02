@@ -12,7 +12,7 @@ import (
 	"gioui.org/op/paint"
 	"gioui.org/unit"
 
-	"github.com/mehran/scanly/internal/library"
+	"github.com/xmhrnx/doclens/internal/library"
 )
 
 // placedStamp is a signature on the page being signed.

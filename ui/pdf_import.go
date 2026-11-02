@@ -13,9 +13,9 @@ import (
 
 	"github.com/xmhrnx/giode"
 
-	"github.com/mehran/scanly/internal/library"
-	"github.com/mehran/scanly/internal/pdfpages"
-	"github.com/mehran/scanly/internal/scan"
+	"github.com/xmhrnx/doclens/internal/library"
+	"github.com/xmhrnx/doclens/internal/pdfpages"
+	"github.com/xmhrnx/doclens/internal/scan"
 )
 
 const (

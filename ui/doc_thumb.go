@@ -6,7 +6,7 @@ import (
 	"github.com/xmhrnx/giode"
 	"github.com/xmhrnx/giode/styles/properties"
 
-	"github.com/mehran/scanly/internal/library"
+	"github.com/xmhrnx/doclens/internal/library"
 )
 
 // docThumb shows a document's first page.

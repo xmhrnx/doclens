@@ -1,4 +1,4 @@
-// Package ui is Scanly's user interface.
+// Package ui is DocLens's user interface.
 package ui
 
 import (
@@ -8,7 +8,7 @@ import (
 
 	"github.com/xmhrnx/giode"
 
-	"github.com/mehran/scanly/internal/library"
+	"github.com/xmhrnx/doclens/internal/library"
 )
 
 // screen is one page of the app's navigation stack.

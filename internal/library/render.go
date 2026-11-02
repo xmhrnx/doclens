@@ -6,7 +6,7 @@ import (
 	"image/jpeg"
 	"os"
 
-	"github.com/mehran/scanly/internal/scan"
+	"github.com/xmhrnx/doclens/internal/scan"
 )
 
 const thumbSide = 480

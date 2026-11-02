@@ -9,7 +9,7 @@ import (
 	"github.com/xmhrnx/giode/components/sheet"
 	"github.com/xmhrnx/giode/ocr"
 
-	"github.com/mehran/scanly/internal/library"
+	"github.com/xmhrnx/doclens/internal/library"
 )
 
 // textSheet shows a page's recognized text, to copy or share.

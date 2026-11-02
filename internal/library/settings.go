@@ -1,8 +1,8 @@
 package library
 
 import (
-	"github.com/mehran/scanly/internal/pdf"
-	"github.com/mehran/scanly/internal/scan"
+	"github.com/xmhrnx/doclens/internal/pdf"
+	"github.com/xmhrnx/doclens/internal/scan"
 )
 
 // Quality is the export resolution and compression.

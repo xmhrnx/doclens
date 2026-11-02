@@ -8,7 +8,7 @@
 //	}
 //
 // Android renders with PdfRenderer (the app's Java class
-// com.mehran.scanly.PdfPages), iOS and macOS with Core Graphics. Other
+// com.xmhrnx.doclens.PdfPages), iOS and macOS with Core Graphics. Other
 // platforms return ErrNotSupported.
 package pdfpages
 
