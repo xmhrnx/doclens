@@ -4,6 +4,7 @@ package ui
 import (
 	"context"
 	"errors"
+	"image"
 	"sync"
 
 	"github.com/xmhrnx/giode"
@@ -29,6 +30,7 @@ type App struct {
 	font []byte
 	// licenses is the open-source notices file (giode licenses).
 	licenses []byte
+	logo     image.Image
 
 	busy     string  // a blocking task's message; "" when idle
 	progress float64 // the blocking task's progress, 0 when unknown
@@ -41,15 +43,25 @@ type App struct {
 	saveMu sync.Mutex
 }
 
-// New creates the UI for a library. font is a TrueType font for
-// watermarks; licenses is the JSON that giode licenses writes.
-func New(g *giode.App, store *library.Store, font, licenses []byte) *App {
+// Assets are the files the UI needs from the app's bundle.
+type Assets struct {
+	// Font is a TrueType font for watermarks.
+	Font []byte
+	// Licenses is the JSON that giode licenses writes.
+	Licenses []byte
+	// Logo is the app icon, shown in the header and on the lock screen.
+	Logo image.Image
+}
+
+// New creates the UI for a library.
+func New(g *giode.App, store *library.Store, assets Assets) *App {
 	setupPalettes()
 	a := &App{
 		g:        g,
 		store:    store,
-		font:     font,
-		licenses: licenses,
+		font:     assets.Font,
+		licenses: assets.Licenses,
+		logo:     assets.Logo,
 		toasts:   giode.Toaster().Placement(giode.ToastBottomCenter).Max(2),
 	}
 	a.thumbs = newImageCache(a, 400, func(docID string, p *library.Page) (imageResult, error) {

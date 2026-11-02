@@ -51,7 +51,7 @@ func (s *pinSetupScreen) view() giode.Element {
 		sub = "Enter it again to confirm"
 	}
 	return giode.Box(giode.Styles{Width: -1, Height: -1},
-		pinScreenLayout("Set up app lock", sub, s.message, s.pad),
+		pinScreenLayout(s.a, "Set up app lock", sub, s.message, s.pad),
 		giode.Box(giode.Styles{Position: giode.PositionAbsolute, Top: 12, Left: 16, ZIndex: 2},
 			iconTile("pinBack", "x", false, s.a.pop)),
 	)

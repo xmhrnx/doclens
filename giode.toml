@@ -20,7 +20,9 @@ min_sdk = 24
 # package USE_BIOMETRIC; text recognition bundles ML Kit. The camera is
 # optional so tablets without one can still import pictures and PDFs.
 manifest = '<uses-feature android:name="android.hardware.camera" android:required="false"/>'
-icon_background = "#5B5BF0"
+icon_foreground = "assets/android-foreground.png"   # adaptive icon layers, from assets/icon-source/make.py
+icon_background = "assets/android-background.png"
+icon_monochrome = "assets/android-monochrome.png"
 java = ["android/java"]       # PdfPages.java: renders PDF pages for "Import PDF"
 # keystore = "release.keystore"   # created by giode keystore; signs giode build -release
 

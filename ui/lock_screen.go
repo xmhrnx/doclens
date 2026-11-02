@@ -106,7 +106,7 @@ func (l *lockScreen) lockOut() {
 
 func (l *lockScreen) view() giode.Element {
 	if !l.canUseBiometric() {
-		return pinScreenLayout("DocLens is locked", "Enter your PIN", l.message, l.pad)
+		return pinScreenLayout(l.a, "DocLens is locked", "Enter your PIN", l.message, l.pad)
 	}
 	if !l.asked {
 		// Offer the fingerprint or face as soon as the lock shows.
@@ -118,24 +118,33 @@ func (l *lockScreen) view() giode.Element {
 		label, name = "Use Face ID", "scan-face"
 	}
 	return giode.Box(giode.Styles{Width: -1, Height: -1},
-		pinScreenLayout("DocLens is locked", "Enter your PIN", l.message, l.pad),
+		pinScreenLayout(l.a, "DocLens is locked", "Enter your PIN", l.message, l.pad),
 		giode.Box(giode.Styles{Position: giode.PositionAbsolute, Left: giode.Flush, Right: giode.Flush, Bottom: 28, Justify: giode.JustifyCenter, ZIndex: 2},
 			actionButton("lockBio", buttonGhost, name, label, false, l.unlockWithBiometric)),
 	)
 }
 
 // pinScreenLayout centers a PIN pad under a title.
-func pinScreenLayout(title, subtitle, message string, pad *pinPad) giode.Element {
+func pinScreenLayout(a *App, title, subtitle, message string, pad *pinPad) giode.Element {
 	msg := giode.Element(giode.Box(giode.Styles{Height: 20}))
 	if message != "" {
 		msg = giode.Text(message, giode.Styles{FontSize: 14, Color: cDanger, TextAlign: giode.TextAlignCenter})
 	}
 	return giode.Stack(giode.Styles{Width: -1, Height: -1, Align: giode.AlignCenter, Justify: giode.JustifyCenter, Gap: 18, Background: cBg},
-		giode.Box(giode.Styles{Width: 64, Height: 64, BorderRadius: 20, BackgroundGradient: brandGradient, BoxShadow: shadowFab,
-			Align: giode.AlignCenter, Justify: giode.JustifyCenter}, icon("lock-keyhole", 30, "#FFFFFF")),
+		lockMark(a),
 		giode.Text(title, tTitle),
 		giode.Text(subtitle, tCaption),
 		msg,
 		pad.view(),
+	)
+}
+
+// lockMark is the app icon with a padlock badge.
+func lockMark(a *App) giode.Element {
+	return giode.Box(giode.Styles{Width: 76, Height: 76, BorderRadius: 18, BoxShadow: shadowFab},
+		brandMark(a, 76),
+		giode.Box(giode.Styles{Position: giode.PositionAbsolute, Right: -6, Bottom: -6, ZIndex: 2, Width: 30, Height: 30,
+			BorderRadius: 15, Background: cSurface, BorderWidth: 2, BorderColor: cBg, Align: giode.AlignCenter, Justify: giode.JustifyCenter},
+			icon("lock-keyhole", 16, cPrimary)),
 	)
 }

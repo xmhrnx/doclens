@@ -165,8 +165,7 @@ func (s *settingsScreen) about() giode.Element {
 	}
 	return settingsGroup("About",
 		giode.Row(giode.Styles{Width: -1, Align: giode.AlignCenter, Gap: 12, Wrap: giode.WrapNoWrap},
-			giode.Box(giode.Styles{Width: 40, Height: 40, BorderRadius: 12, BackgroundGradient: brandGradient,
-				Align: giode.AlignCenter, Justify: giode.JustifyCenter}, icon("scan-line", 20, "#FFFFFF")),
+			brandMark(s.a, 44),
 			giode.Stack(giode.Styles{FlexGrow: 1, Gap: 2},
 				giode.Text("DocLens "+Version, tHeading),
 				giode.Text(fmt.Sprintf("%d documents · %d pages", len(st.Docs), pages), tCaption))),
