@@ -1,0 +1,34 @@
+# giode.toml configures how the giode CLI builds this app.
+# Reference: https://github.com/xmhrnx/giode-cli#giodetoml
+
+[app]
+name = "Scanly"
+id = "com.mehran.scanly"     # reverse-DNS, unique to the app; stores never let it change
+version = "1.0.0"
+build = 1                    # raise for every store upload (giode bump)
+icon = "assets/icon.png"
+package = "."
+platforms = ["android", "ios"]
+publisher = "Mehran Zahiroddini"
+description = "Scan documents with your phone: automatic edge detection, perspective correction, filters, signatures and password-protected PDFs."
+website = ""
+licenses = "assets/licenses.json"   # refreshed on every build, shown in Settings
+
+[android]
+min_sdk = 24
+# giode's camera package adds the CAMERA permission and the biometric
+# package USE_BIOMETRIC; text recognition bundles ML Kit. The camera is
+# optional so tablets without one can still import pictures and PDFs.
+manifest = '<uses-feature android:name="android.hardware.camera" android:required="false"/>'
+icon_background = "#5B5BF0"
+java = ["android/java"]       # PdfPages.java: renders PDF pages for "Import PDF"
+# keystore = "release.keystore"   # created by giode keystore; signs giode build -release
+
+[ios]
+min_os = 15
+
+[ios.usage]
+camera = "Scanly uses the camera to scan documents."
+photos = "Scanly turns photos you pick into scans."
+photos_add = "Scanly saves scanned pages to your photo library when you ask."
+faceid = "Scanly can unlock your documents with Face ID."
