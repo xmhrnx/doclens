@@ -98,9 +98,8 @@ func (h *homeScreen) header() giode.Element {
 		sub = fmt.Sprintf("%d document%s · %d pages", n, plural(n), h.totalPages())
 	}
 	return giode.Row(giode.Styles{Width: -1, Align: giode.AlignCenter, Wrap: giode.WrapNoWrap, Padding: giode.Inset{Top: 12, Bottom: 4}},
-		giode.Box(giode.Styles{Width: 44, Height: 44, BorderRadius: 14, BackgroundGradient: brandGradient,
-			Align: giode.AlignCenter, Justify: giode.JustifyCenter, BoxShadow: shadowFab, Margin: giode.Inset{Right: 12}},
-			icon("scan-line", 24, "#FFFFFF")),
+		giode.Box(giode.Styles{Width: 46, Height: 46, BorderRadius: 12, BoxShadow: shadowFab, Margin: giode.Inset{Right: 12}},
+			brandMark(h.a, 46)),
 		giode.Stack(giode.Styles{FlexGrow: 1, Gap: 2},
 			giode.Text("DocLens", with(tDisplay, giode.Styles{FontSize: 26})),
 			giode.Text(sub, tCaption),

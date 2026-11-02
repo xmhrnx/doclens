@@ -3,8 +3,10 @@
 package main
 
 import (
+	"bytes"
 	"embed"
 	"image"
+	"image/png"
 	"log"
 	"os"
 	"path/filepath"
@@ -20,6 +22,11 @@ import (
 
 //go:embed assets/icon.png
 var appIcon []byte
+
+// logo is the icon with rounded corners, shown inside the app.
+//
+//go:embed assets/logo.png
+var logoPNG []byte
 
 //go:embed assets/fonts/*.ttf
 var fontFS embed.FS
@@ -65,7 +72,11 @@ func main() {
 		OnBackground:        func() { u.OnBackground() },
 		OnSystemThemeChange: func(dark bool) { u.OnSystemTheme(dark) },
 	})
-	u = ui.New(app, store, bold, licensesJSON)
+	logo, err := png.Decode(bytes.NewReader(logoPNG))
+	if err != nil {
+		log.Fatal(err)
+	}
+	u = ui.New(app, store, ui.Assets{Font: bold, Licenses: licensesJSON, Logo: logo})
 	if err := app.Run(u.View); err != nil {
 		log.Fatal(err)
 	}
