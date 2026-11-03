@@ -223,3 +223,35 @@ func TestHullToQuadRestoresCutCorner(t *testing.T) {
 		t.Errorf("got %v", q)
 	}
 }
+
+// TestSmallPageOnBusyDesk is a small sheet on a dark desk with long
+// straight lines running the frame's height (a keyboard's edge, the
+// desk's): with the frame's own edges they make a large outline, which
+// must not beat the sheet.
+func TestSmallPageOnBusyDesk(t *testing.T) {
+	rng := rand.New(rand.NewSource(21))
+	o := synthOpts{W: 1500, H: 2000, Paper: color.RGBA{238, 238, 232, 255},
+		Bg1: color.RGBA{28, 26, 34, 255}, Bg2: color.RGBA{36, 34, 44, 255}, Noise: 6, TextLines: 24,
+		Quad: Quad{{560, 760}, {1080, 790}, {1060, 1450}, {540, 1420}}}
+	img := synthPhoto(o, rng)
+	bar := func(x0, x1 int, c color.RGBA) {
+		for y := 0; y < o.H; y++ {
+			for x := x0; x < x1; x++ {
+				img.SetRGBA(x, y, c)
+			}
+		}
+	}
+	bar(1260, 1300, color.RGBA{200, 205, 210, 255}) // keyboard edge
+	bar(1300, 1500, color.RGBA{150, 150, 160, 255}) // keys
+	bar(150, 175, color.RGBA{170, 120, 70, 255})    // desk edge
+	frame := Downscale(img, 640)
+	fs := float64(o.H) / float64(frame.Bounds().Dy())
+	for name, d := range map[string]Detection{
+		"full":    Detect(img),
+		"preview": func() Detection { d := DetectPreview(frame); d.Quad = d.Quad.Scale(fs, fs); return d }(),
+	} {
+		if err := maxCornerError(d.Quad, o.Quad); !d.Found || err > 0.02*2500 {
+			t.Errorf("%s: found=%v, corners off by %.0f px: %v", name, d.Found, err, d.Quad)
+		}
+	}
+}
