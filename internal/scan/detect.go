@@ -3,6 +3,7 @@ package scan
 import (
 	"image"
 	"math"
+	"slices"
 	"sort"
 )
 
@@ -40,7 +41,7 @@ func DetectPreview(img image.Image) Detection {
 
 // previewSide is the analysis size for live frames: enough to place an
 // outline on screen.
-const previewSide = 400
+const previewSide = 480
 
 func detect(img image.Image, side int, refineCorners bool) Detection {
 	b := img.Bounds()
@@ -65,7 +66,7 @@ func detect(img image.Image, side int, refineCorners bool) Detection {
 		smooth[c] = gaussianBlur(closing(channels[c], r), 1.4)
 	}
 	g := colorGradient(smooth)
-	sc := newScorer(g)
+	sc := newScorer(g, smooth)
 
 	var color [3]*plane
 	for c := range color {
@@ -94,21 +95,36 @@ func detect(img image.Image, side int, refineCorners bool) Detection {
 }
 
 // borderCredit is the score of a side lying on the photo's edge.
-const borderCredit = 0.8
+// A side on the frame proves nothing, so it earns about half a real
+// edge: generous credit let outlines made of the frame and a couple of
+// long desk lines (a keyboard, a mat's border) beat a small sheet.
+const borderCredit = 0.5
+
+// How an outline's score is made up: the mean and the weakest of its
+// sides' edge support, its size, and how even its inside is.
+const (
+	wMean = 0.5
+	wLow  = 0.2
+	wArea = 0.2
+	wUni  = 0.1
+)
 
 // scorer rates candidate outlines against the photo's edges.
 type scorer struct {
 	g    *gradient
 	norm float32 // a strong edge's gradient magnitude
+	// ch are the smoothed channels (text closed away), for judging
+	// whether an outline's inside looks like one sheet of paper.
+	ch []*plane
 }
 
-func newScorer(g *gradient) *scorer {
+func newScorer(g *gradient, ch []*plane) *scorer {
 	p := &plane{W: g.W, H: g.H, Pix: g.Mag}
 	// Relative to the photo's strongest edges, but never so low that
 	// texture or sensor noise counts as an edge: a Sobel response of
 	// 0.2 is a brightness step of about 5%.
 	n := max(p.percentile(0.97, 0.01), 0.2)
-	return &scorer{g: g, norm: n}
+	return &scorer{g: g, norm: n, ch: ch}
 }
 
 // score returns how plausible q is as a document outline, in [0, 1],
@@ -169,7 +185,54 @@ func (s *scorer) score(q Quad) float64 {
 		skew += math.Abs(a - 90)
 	}
 	skewPenalty := math.Max(0, skew/4-12) / 60
-	return 0.55*mean + 0.25*low + 0.2*areaScore - skewPenalty
+	return wMean*mean + wLow*low + wArea*areaScore + wUni*s.uniformity(q) - skewPenalty
+}
+
+// uniformity is the share of an outline's inside that looks like one
+// surface: with text closed away, a sheet of paper is even (shadows only
+// shade it gradually), while an outline around the desk, a keyboard and
+// the paper is a patchwork. Samples count as even when every channel is
+// within 40% of the inside's median.
+func (s *scorer) uniformity(q Quad) float64 {
+	const n = 14
+	var vals [][]float32
+	for range s.ch {
+		vals = append(vals, make([]float32, 0, n*n))
+	}
+	for i := 0; i < n; i++ {
+		for j := 0; j < n; j++ {
+			u := 0.08 + 0.84*(float64(i)+0.5)/n
+			v := 0.08 + 0.84*(float64(j)+0.5)/n
+			// Bilinear position inside the quad.
+			top := q[0].Add(q[1].Sub(q[0]).Mul(u))
+			bot := q[3].Add(q[2].Sub(q[3]).Mul(u))
+			p := top.Add(bot.Sub(top).Mul(v))
+			for c, ch := range s.ch {
+				vals[c] = append(vals[c], ch.bilinear(p.X, p.Y))
+			}
+		}
+	}
+	med := make([]float32, len(vals))
+	for c, v := range vals {
+		sorted := append([]float32(nil), v...)
+		slices.Sort(sorted)
+		med[c] = sorted[len(sorted)/2]
+	}
+	even := 0
+	for k := range vals[0] {
+		ok := true
+		for c := range vals {
+			tol := max(0.4*med[c], 0.06)
+			if d := vals[c][k] - med[c]; d > tol || d < -tol {
+				ok = false
+				break
+			}
+		}
+		if ok {
+			even++
+		}
+	}
+	return float64(even) / float64(len(vals[0]))
 }
 
 // side measures how much of the segment a-b runs along a real edge
