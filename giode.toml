@@ -34,3 +34,7 @@ camera = "DocLens uses the camera to scan documents."
 photos = "DocLens turns photos you pick into scans."
 photos_add = "DocLens saves scanned pages to your photo library when you ask."
 faceid = "DocLens can unlock your documents with Face ID."
+
+[ci]
+trigger = "release"                    # build only when a GitHub release is published
+test = "go vet ./... && go test ./..."
