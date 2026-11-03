@@ -124,35 +124,44 @@ func (f *scanFlow) importPhotos() {
 			a.fail(err)
 			return
 		}
-		a.g.Post(func() {
-			a.work(fmt.Sprintf("Finding pages in %d picture%s", len(files), plural(len(files))), func(progress func(float64)) error {
-				var pages []*pendingPage
-				for i, file := range files {
-					data, err := io.ReadAll(file)
-					file.Close()
-					if err != nil {
-						return fmt.Errorf("%s: %w", file.Name, err)
-					}
-					// The picker hands over upright JPEGs.
-					img, err := scan.Decode(bytes.NewReader(data))
-					if err != nil {
-						return fmt.Errorf("%s: %w", file.Name, err)
-					}
-					pp, err := f.prepare(img, data)
-					if err != nil {
-						return err
-					}
-					pages = append(pages, pp...)
-					progress(float64(i+1) / float64(len(files)))
-				}
-				a.g.Post(func() {
-					f.pages = append(f.pages, pages...)
-					f.review()
-				})
-				return nil
-			}, nil)
-		})
+		a.g.Post(func() { f.importFiles(files) })
 	}()
+}
+
+// importFiles finds the page in each picture file, closing them, and
+// opens the review.
+func (f *scanFlow) importFiles(files []giode.PickedFile) {
+	a := f.a
+	a.work(fmt.Sprintf("Finding pages in %d picture%s", len(files), plural(len(files))), func(progress func(float64)) error {
+		defer func() {
+			for _, file := range files {
+				file.Close()
+			}
+		}()
+		var pages []*pendingPage
+		for i, file := range files {
+			data, err := io.ReadAll(file)
+			if err != nil {
+				return fmt.Errorf("%s: %w", file.Name, err)
+			}
+			// Turned upright by its EXIF tag, if it has one.
+			img, err := scan.Decode(bytes.NewReader(data))
+			if err != nil {
+				return fmt.Errorf("%s: %w", file.Name, err)
+			}
+			pp, err := f.prepare(img, data)
+			if err != nil {
+				return err
+			}
+			pages = append(pages, pp...)
+			progress(float64(i+1) / float64(len(files)))
+		}
+		a.g.Post(func() {
+			f.pages = append(f.pages, pages...)
+			f.review()
+		})
+		return nil
+	}, nil)
 }
 
 // startEdit opens existing pages in the crop editor (crop) or the

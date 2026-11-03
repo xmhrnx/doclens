@@ -329,18 +329,24 @@ func exportFiles(d *library.Document, format, only int, base string, src library
 func (e *exportSheet) deliver(title string, files []exportFile, dest destination) error {
 	a := e.a
 	ctx := context.Background()
-	if dest == toFiles {
-		for _, f := range files {
-			if err := saveAs(ctx, a, f); err != nil {
-				return err
-			}
-		}
-		a.notify(savedMessage(files))
-		return nil
-	}
 	paths, err := writeExports(a.store.Dir, files)
 	if err != nil {
 		return err
+	}
+	if dest == toFiles {
+		for _, p := range paths {
+			if _, err := a.g.SaveToDownloads(ctx, p, downloadsFolder); err != nil {
+				return err
+			}
+		}
+		a.toasts.ShowAction(giode.ToastSuccess, savedMessage(files), "Open", func() {
+			go func() {
+				if err := a.g.OpenDownloads(context.Background(), downloadsFolder); err != nil {
+					a.fail(err)
+				}
+			}()
+		})
+		return nil
 	}
 	switch dest {
 	case toPhotos:
@@ -380,23 +386,14 @@ func writeExports(base string, files []exportFile) ([]string, error) {
 	return paths, nil
 }
 
-func saveAs(ctx context.Context, a *App, f exportFile) error {
-	w, err := a.g.SaveFile(ctx, f.name)
-	if err != nil {
-		return err
-	}
-	if _, err := w.Write(f.data); err != nil {
-		w.Close()
-		return err
-	}
-	return w.Close()
-}
+// downloadsFolder is the folder in Downloads that exports are saved to.
+const downloadsFolder = "DocLens"
 
 func savedMessage(files []exportFile) string {
 	if len(files) == 1 {
-		return fmt.Sprintf("Saved %s (%s)", files[0].name, fileSize(len(files[0].data)))
+		return fmt.Sprintf("Saved %s (%s) to Downloads", files[0].name, fileSize(len(files[0].data)))
 	}
-	return fmt.Sprintf("Saved %d files", len(files))
+	return fmt.Sprintf("Saved %d files to Downloads", len(files))
 }
 
 // safeName makes a document name usable as a file name.

@@ -71,6 +71,7 @@ func main() {
 		Orientation:         giode.OrientationPortrait,
 		OnBackground:        func() { u.OnBackground() },
 		OnSystemThemeChange: func(dark bool) { u.OnSystemTheme(dark) },
+		OnShareReceived:     func(s giode.SharedContent) { u.OnShare(s) },
 	})
 	logo, err := png.Decode(bytes.NewReader(logoPNG))
 	if err != nil {

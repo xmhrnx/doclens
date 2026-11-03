@@ -46,7 +46,7 @@ func startPDFImport(a *App, doc *library.Document) {
 			return
 		}
 		name := strings.TrimSuffix(f.Name, filepath.Ext(f.Name))
-		a.g.Post(func() { importPDF(a, doc, path, name) })
+		a.g.Post(func() { importPDF(a, doc, path, name, nil) })
 	}()
 }
 
@@ -69,16 +69,22 @@ func copyToImportDir(base string, r io.Reader) (string, error) {
 
 // importPDF renders every page of the PDF at path into a photo and
 // adds the pages, untouched (Original filter, no crop), to a document.
-func importPDF(a *App, doc *library.Document, path, name string) {
+// next, if set, runs afterwards on the UI goroutine, whether the import
+// worked or not: the next of several imports.
+func importPDF(a *App, doc *library.Document, path, name string, next func()) {
 	store := a.store
 	docID := library.NewDocumentID()
 	if doc != nil {
 		docID = doc.ID
 	}
 	var pages []*library.Page
-	a.work("Importing “"+name+"”", func(progress func(float64)) error {
+	a.work("Importing “"+name+"”", func(progress func(float64)) (err error) {
 		defer os.Remove(path)
-		var err error
+		defer func() {
+			if err != nil && next != nil {
+				a.g.Post(next)
+			}
+		}()
 		pages, err = renderPDF(store, docID, path, progress)
 		if err != nil && doc == nil {
 			// Nothing of a new document is kept.
@@ -101,6 +107,9 @@ func importPDF(a *App, doc *library.Document, path, name string) {
 		a.save()
 		a.notify(fmt.Sprintf("Imported %d page%s", len(pages), plural(len(pages))))
 		renderInBackground(a, doc, pages)
+		if next != nil {
+			next()
+		}
 	})
 }
 

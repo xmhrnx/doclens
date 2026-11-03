@@ -9,6 +9,7 @@ build = 1                    # raise for every store upload (giode bump)
 icon = "assets/icon.png"
 package = "."
 platforms = ["android", "ios"]
+share_target = true          # appear in the share sheet: shared pictures and PDFs become documents
 publisher = "Mehran Zahiroddini"
 description = "Scan documents with your phone: automatic edge detection, perspective correction, filters, signatures and password-protected PDFs."
 website = ""
