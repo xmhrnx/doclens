@@ -2,6 +2,7 @@ package ui
 
 import (
 	"image"
+	"sync"
 
 	"github.com/xmhrnx/giode/styles/properties"
 
@@ -35,6 +36,11 @@ type pagePreviewer struct {
 	key    previewKey
 	busy   bool
 	queued *previewKey
+
+	// full is the full-resolution photo of fullOf, decoded once.
+	fullMu sync.Mutex
+	full   image.Image
+	fullOf *photo
 
 	looks     map[scan.Filter]image.Image
 	looksKey  previewKey
@@ -72,7 +78,7 @@ func (r *pagePreviewer) request(k previewKey) {
 	flat := r.flats[fk]
 	go func() {
 		if flat == nil {
-			flat = flatten(k.page, k.quad)
+			flat = r.sharpFlatten(k.page, k.quad)
 		}
 		img := scan.Enhance(scan.Rotate90(flat, k.rotation), k.filter, k.adjust)
 		r.a.g.Post(func() {
@@ -92,6 +98,38 @@ func (r *pagePreviewer) request(k previewKey) {
 }
 
 // flatten cuts the page out of the editor's copy of the photo.
+// previewSide is the longest side of the large preview: sharp across a
+// phone's screen.
+const previewSide = 2000
+
+// sharpFlatten cuts the page out of the full-resolution photo, so the
+// preview shows the page as it will be saved. It runs on the render
+// goroutine; the last photo stays decoded for further looks at the
+// same page.
+func (r *pagePreviewer) sharpFlatten(p *pendingPage, q scan.Quad) image.Image {
+	if p.src.load == nil {
+		return flatten(p, q)
+	}
+	r.fullMu.Lock()
+	full := r.full
+	if r.fullOf != p.src {
+		full = nil
+	}
+	r.fullMu.Unlock()
+	if full == nil {
+		var err error
+		if full, err = p.src.load(); err != nil {
+			r.a.fail(err)
+			return flatten(p, q)
+		}
+		r.fullMu.Lock()
+		r.full, r.fullOf = full, p.src
+		r.fullMu.Unlock()
+	}
+	return scan.Downscale(scan.Flatten(full, q), previewSide)
+}
+
+// flatten cuts the page out of the editors' smaller copy of the photo.
 func flatten(p *pendingPage, q scan.Quad) image.Image {
 	s := p.src.scale
 	return scan.Flatten(p.src.view, q.Scale(s, s))
@@ -138,4 +176,7 @@ func (r *pagePreviewer) release() {
 		properties.ForgetImage(r.shown)
 	}
 	r.flats, r.looks, r.shown = map[flatKey]image.Image{}, nil, nil
+	r.fullMu.Lock()
+	r.full, r.fullOf = nil, nil
+	r.fullMu.Unlock()
 }

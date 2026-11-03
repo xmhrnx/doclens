@@ -120,3 +120,17 @@ func TestStrokeIsSolid(t *testing.T) {
 		}
 	}
 }
+
+func TestMatchesJPEG(t *testing.T) {
+	img := image.NewRGBA(image.Rect(0, 0, 40, 30))
+	var buf bytes.Buffer
+	if err := jpeg.Encode(&buf, img, nil); err != nil {
+		t.Fatal(err)
+	}
+	if !MatchesJPEG(buf.Bytes(), img) {
+		t.Error("same size: should match")
+	}
+	if MatchesJPEG(buf.Bytes(), image.NewRGBA(image.Rect(0, 0, 32, 24))) {
+		t.Error("a downscaled copy should not match")
+	}
+}

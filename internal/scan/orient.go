@@ -220,3 +220,15 @@ func Downscale(img image.Image, maxSide int) image.Image {
 	}
 	return out
 }
+
+// MatchesJPEG reports whether data, stored as it is, decodes to exactly
+// img: the same size and no EXIF rotation. Outlines found in img only
+// fit a stored photo that does.
+func MatchesJPEG(data []byte, img image.Image) bool {
+	cfg, err := jpeg.DecodeConfig(bytes.NewReader(data))
+	if err != nil {
+		return false
+	}
+	b := img.Bounds()
+	return cfg.Width == b.Dx() && cfg.Height == b.Dy() && exifOrientation(data) == 1
+}

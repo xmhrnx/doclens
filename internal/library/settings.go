@@ -45,8 +45,10 @@ type Settings struct {
 	AppLock       bool         `json:"appLock"`
 	Author        string       `json:"author"`
 	// AutoCapture takes the picture by itself once the camera holds
-	// steady on a page.
-	AutoCapture bool `json:"autoCapture"`
+	// steady on a page. Off by default; the key was renamed from
+	// "autoCapture" when the default changed, so earlier installs
+	// start from the new default too.
+	AutoCapture bool `json:"autoShoot"`
 	// AutoText recognizes the text of new pages in the background, for
 	// searching and searchable PDFs.
 	AutoText bool `json:"autoText"`
@@ -66,7 +68,7 @@ func DefaultSettings() Settings {
 		Margins:       false,
 		Quality:       QualityMedium,
 		Theme:         ThemeSystem,
-		AutoCapture:   true,
+		AutoCapture:   false,
 		AutoText:      true,
 	}
 }

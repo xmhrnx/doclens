@@ -39,6 +39,9 @@ type photo struct {
 	w, h  int
 	view  image.Image // a smaller copy for the editors
 	scale float64     // view pixels per photo pixel
+	// load returns the photo at full size, for sharp previews. It runs
+	// off the UI goroutine.
+	load func() (image.Image, error)
 }
 
 // pendingPage is a page between capture and saving, or an existing
@@ -162,9 +165,15 @@ func startEdit(a *App, doc *library.Document, pages []*library.Page, crop bool) 
 	for i, p := range pages {
 		clones[i] = p.Clone()
 	}
+	// Pages split from one photo (a book spread) share it.
+	shared := map[string]int{}
+	for _, p := range clones {
+		shared[p.Photo]++
+	}
 	a.work("Opening", func(func(float64)) error {
 		var out []*pendingPage
 		photos := map[string]*photo{}
+		found := map[string]scan.Detection{}
 		for i, p := range clones {
 			ph := photos[p.Photo]
 			if ph == nil {
@@ -174,10 +183,20 @@ func startEdit(a *App, doc *library.Document, pages []*library.Page, crop bool) 
 				}
 				ph = newPhoto(img, nil)
 				ph.name = p.Photo
+				saved := p
+				ph.load = func() (image.Image, error) { return store.LoadPhoto(doc.ID, saved) }
 				photos[p.Photo] = ph
+				// "Auto" in the crop editor looks for the page afresh.
+				if crop && shared[p.Photo] == 1 {
+					found[p.Photo] = scan.Detect(img)
+				}
+			}
+			auto, detected := p.Quad, p.Detected
+			if d, ok := found[p.Photo]; ok && d.Found {
+				auto, detected = d.Quad, true
 			}
 			out = append(out, &pendingPage{
-				src: ph, quad: p.Quad, auto: p.Quad, detected: p.Detected,
+				src: ph, quad: p.Quad, auto: auto, detected: detected,
 				rotation: p.Rotation, filter: p.Filter, adjust: p.Adjust, page: pages[i],
 			})
 		}
@@ -256,6 +275,12 @@ func (f *scanFlow) detectIn(data []byte) ([]*pendingPage, error) {
 // nil to encode img.
 func (f *scanFlow) prepare(img image.Image, data []byte) ([]*pendingPage, error) {
 	img = scan.Downscale(img, captureSide)
+	// The page's outline is found in img, so the stored photo must be
+	// img: a full-resolution camera shot is larger, and a photo turned
+	// by its EXIF tag would be stored sideways.
+	if data != nil && !scan.MatchesJPEG(data, img) {
+		data = nil
+	}
 	if data == nil {
 		var buf bytes.Buffer
 		if err := scan.EncodeJPEG(&buf, img, 92); err != nil {
@@ -282,7 +307,11 @@ func (f *scanFlow) prepare(img image.Image, data []byte) ([]*pendingPage, error)
 func newPhoto(img image.Image, data []byte) *photo {
 	b := img.Bounds()
 	view := scan.Downscale(img, viewSide)
-	return &photo{jpeg: data, w: b.Dx(), h: b.Dy(), view: view, scale: float64(view.Bounds().Dx()) / float64(b.Dx())}
+	ph := &photo{jpeg: data, w: b.Dx(), h: b.Dy(), view: view, scale: float64(view.Bounds().Dx()) / float64(b.Dx())}
+	if data != nil {
+		ph.load = func() (image.Image, error) { return scan.Decode(bytes.NewReader(data)) }
+	}
+	return ph
 }
 
 // add takes freshly detected pages and decides what comes next.

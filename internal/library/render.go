@@ -12,13 +12,28 @@ import (
 const thumbSide = 480
 
 // LoadPhoto reads a page's photo.
+//
+// The photo comes back at the size the page's outline refers to
+// (PhotoW x PhotoH), turned upright by its EXIF tag. Earlier versions
+// stored some camera shots at a larger size than their outline was
+// found at; scaling them down here puts those outlines back on the
+// page.
 func (s *Store) LoadPhoto(docID string, p *Page) (image.Image, error) {
 	f, err := os.Open(s.PhotoPath(docID, p))
 	if err != nil {
 		return nil, err
 	}
 	defer f.Close()
-	return jpeg.Decode(f)
+	img, err := scan.Decode(f)
+	if err != nil {
+		return nil, err
+	}
+	if p.PhotoW > 0 && p.PhotoH > 0 {
+		if b := img.Bounds(); b.Dx() > p.PhotoW || b.Dy() > p.PhotoH {
+			img = scan.Downscale(img, max(p.PhotoW, p.PhotoH))
+		}
+	}
+	return img, nil
 }
 
 // RenderPage returns the finished page - flattened, enhanced and
