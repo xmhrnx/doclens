@@ -117,7 +117,7 @@ func (s *settingsScreen) content() giode.Element {
 		settingsGroup("Export", optionLabel("Page size"), s.size, optionLabel("Quality"), s.quality, s.margins, s.author),
 		settingsGroup("Appearance", s.theme),
 		settingsGroup("Privacy", s.lock, s.bioSwitch(),
-			giode.Text("DocLens locks when it leaves the screen. Your documents never leave this device unless you share them.", with(tCaption, giode.Styles{LineHeight: 19}))),
+			giode.Text("GoScan locks when it leaves the screen. Your documents never leave this device unless you share them.", with(tCaption, giode.Styles{LineHeight: 19}))),
 		s.signatures(),
 		s.about(),
 	)
@@ -167,7 +167,7 @@ func (s *settingsScreen) about() giode.Element {
 		giode.Row(giode.Styles{Width: -1, Align: giode.AlignCenter, Gap: 12, Wrap: giode.WrapNoWrap},
 			brandMark(s.a, 44),
 			giode.Stack(giode.Styles{FlexGrow: 1, Gap: 2},
-				giode.Text("DocLens "+Version, tHeading),
+				giode.Text("GoScan "+Version, tHeading),
 				giode.Text(fmt.Sprintf("%d documents · %d pages", len(st.Docs), pages), tCaption))),
 		sheetRow("about", "licenses", "info", "Open-source licenses", "", false, func() { s.a.push(newLicensesScreen(s.a)) }),
 	)

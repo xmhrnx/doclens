@@ -2,21 +2,25 @@
 # Reference: https://github.com/xmhrnx/giode-cli#giodetoml
 
 [app]
-name = "DocLens"
-id = "com.xmhrnx.doclens"     # reverse-DNS, unique to the app; stores never let it change
+name = "GoScan"
+id = "com.xmhrnx.goscan"     # reverse-DNS, unique to the app; stores never let it change
 version = "1.0.0"
 build = 1                    # raise for every store upload (giode bump)
 icon = "assets/icon.png"
+splash_color = "#0A0C14"       # launch background in dark mode (the app's dark background)
+splash_color_light = "#F5F6FB" # and in light mode; Android 12+ shows the icon on it
 package = "."
 platforms = ["android", "ios"]
 share_target = true          # appear in the share sheet: shared pictures and PDFs become documents
 publisher = "Mehran Zahiroddini"
 description = "Scan documents with your phone: automatic edge detection, perspective correction, filters, signatures and password-protected PDFs."
-website = ""
+website = "https://github.com/xmhrnx/doclens"
 licenses = "assets/licenses.json"   # refreshed on every build, shown in Settings
 
 [android]
 min_sdk = 24
+target_sdk = 36               # Google Play requires API 36 for new apps and updates since Aug 31, 2026
+notifications = false         # GoScan never notifies: no POST_NOTIFICATIONS permission
 # giode's camera package adds the CAMERA permission and the biometric
 # package USE_BIOMETRIC; text recognition bundles ML Kit. The camera is
 # optional so tablets without one can still import pictures and PDFs.
@@ -25,17 +29,34 @@ icon_foreground = "assets/android-foreground.png"   # adaptive icon layers, from
 icon_background = "assets/android-background.png"
 icon_monochrome = "assets/android-monochrome.png"
 java = ["android/java"]       # PdfPages.java: renders PDF pages for "Import PDF"
-# keystore = "release.keystore"   # created by giode keystore; signs giode build -release
+# The upload key Google Play knows the app by. Create it once with
+# `giode keystore`, keep it and its password safe and out of git (it's in
+# .gitignore), and give CI both as secrets: see RELEASING.md.
+keystore = "release.keystore"
+keystore_pass_env = "GIODE_KEYSTORE_PASS"
 
 [ios]
 min_os = 15
+icon = "assets/icon-ios.png"  # opaque, no alpha channel: App Store Connect refuses icons with one
+# Device builds take their provisioning profiles from CI secrets
+# ($GIODE_IOS_PROFILE, $GIODE_IOS_SHARE_PROFILE): see RELEASING.md.
 
 [ios.usage]
-camera = "DocLens uses the camera to scan documents."
-photos = "DocLens turns photos you pick into scans."
-photos_add = "DocLens saves scanned pages to your photo library when you ask."
-faceid = "DocLens can unlock your documents with Face ID."
+camera = "GoScan uses the camera to scan documents."
+photos = "GoScan turns photos you pick into scans."
+photos_add = "GoScan saves scanned pages to your photo library when you ask."
+faceid = "GoScan can unlock your documents with Face ID."
+
+# The privacy manifest (PrivacyInfo.xcprivacy) the App Store requires. GoScan
+# collects nothing: scans, text recognition and PDFs stay on the device. The
+# APIs Go itself uses (file timestamps, system boot time) are declared by giode.
+[privacy]
+tracking = false
 
 [ci]
 trigger = "release"                    # build only when a GitHub release is published
 test = "go vet ./... && go test ./..."
+
+[ci.setup]
+# The runner's Android SDK may predate API 36, which target_sdk needs.
+linux = "yes | \"$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager\" \"platforms;android-36\" \"build-tools;36.0.0\" > /dev/null"

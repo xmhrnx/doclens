@@ -18,6 +18,7 @@ env:
 jobs:
   test:
     runs-on: ubuntu-latest
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-go@v5
@@ -27,6 +28,9 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y gcc pkg-config libwayland-dev libx11-dev libx11-xcb-dev libxkbcommon-x11-dev libgles2-mesa-dev libegl1-mesa-dev libffi-dev libxcursor-dev libvulkan-dev
+      - name: Project setup (giode.toml ci.setup)
+        run: |
+          yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "platforms;android-36" "build-tools;36.0.0" > /dev/null
       - name: Test (giode.toml ci.test)
         run: |
           go vet ./... && go test ./...
@@ -40,6 +44,7 @@ jobs:
             runner: ubuntu-latest
             primary: true
     runs-on: ${{ matrix.runner }}
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-go@v5
@@ -50,6 +55,9 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y gcc pkg-config libwayland-dev libx11-dev libx11-xcb-dev libxkbcommon-x11-dev libgles2-mesa-dev libegl1-mesa-dev libffi-dev libxcursor-dev libvulkan-dev nsis osslsigncode
           go install github.com/xmhrnx/giode-cli/cmd/giode@latest
+      - name: Project setup (giode.toml ci.setup)
+        run: |
+          yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "platforms;android-36" "build-tools;36.0.0" > /dev/null
       - name: Signing keys
         env:
           ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
@@ -81,9 +89,12 @@ jobs:
   ios:
     needs: test
     runs-on: macos-latest
+    # A hung signing step fails in an hour rather than GitHub's six.
+    timeout-minutes: 60
     env:
       IOS_CERT_BASE64: ${{ secrets.IOS_CERT_BASE64 }}
       IOS_PROFILE_BASE64: ${{ secrets.IOS_PROFILE_BASE64 }}
+      IOS_SHARE_PROFILE_BASE64: ${{ secrets.IOS_SHARE_PROFILE_BASE64 }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-go@v5
@@ -104,13 +115,26 @@ jobs:
           rm cert.p12
           echo "$IOS_PROFILE_BASE64" | base64 -d > "$RUNNER_TEMP/app.mobileprovision"
           echo "GIODE_IOS_PROFILE=$RUNNER_TEMP/app.mobileprovision" >> "$GITHUB_ENV"
+          # app.share_target: the share extension has its own profile.
+          if [ -n "$IOS_SHARE_PROFILE_BASE64" ]; then
+            echo "$IOS_SHARE_PROFILE_BASE64" | base64 -d > "$RUNNER_TEMP/share.mobileprovision"
+            echo "GIODE_IOS_SHARE_PROFILE=$RUNNER_TEMP/share.mobileprovision" >> "$GITHUB_ENV"
+          fi
       - name: Build
         env:
           GIODE_IOS_TEAM_ID: ${{ secrets.IOS_TEAM_ID }}
         run: |
-          # A device build needs the certificate and profile; without
-          # them, check that the app builds for the simulator.
-          if [ -n "$GIODE_IOS_PROFILE" ]; then giode build ios; else giode build ios-sim; fi
+          # A device build needs the certificate and both profiles, the
+          # app's and the share extension's; without them, check that
+          # the app builds for the simulator.
+          if [ -n "$GIODE_IOS_PROFILE" ] && [ -n "$GIODE_IOS_SHARE_PROFILE" ]; then
+            giode build ios
+          else
+            if [ -n "$GIODE_IOS_PROFILE" ]; then
+              echo "::warning::app.share_target needs the IOS_SHARE_PROFILE_BASE64 secret for a device build; building for the simulator"
+            fi
+            giode build ios-sim
+          fi
       - uses: actions/upload-artifact@v4
         with:
           name: ios

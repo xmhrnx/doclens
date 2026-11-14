@@ -11,7 +11,7 @@ import (
 	"github.com/xmhrnx/giode"
 )
 
-const pinKey = "doclens.pin"
+const pinKey = "goscan.pin"
 
 // savePIN stores a salted hash of the PIN in the platform's secure
 // storage. It may block: call it on a goroutine.

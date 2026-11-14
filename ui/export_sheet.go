@@ -351,7 +351,7 @@ func (e *exportSheet) deliver(title string, files []exportFile, dest destination
 	switch dest {
 	case toPhotos:
 		for _, p := range paths {
-			if err := a.g.SaveToPhotos(ctx, p, "DocLens"); err != nil {
+			if err := a.g.SaveToPhotos(ctx, p, "GoScan"); err != nil {
 				return err
 			}
 		}
@@ -387,7 +387,7 @@ func writeExports(base string, files []exportFile) ([]string, error) {
 }
 
 // downloadsFolder is the folder in Downloads that exports are saved to.
-const downloadsFolder = "DocLens"
+const downloadsFolder = "GoScan"
 
 func savedMessage(files []exportFile) string {
 	if len(files) == 1 {

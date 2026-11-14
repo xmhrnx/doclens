@@ -1,4 +1,4 @@
-// Package ui is DocLens's user interface.
+// Package ui is GoScan's user interface.
 package ui
 
 import (

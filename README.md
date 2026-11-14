@@ -1,4 +1,4 @@
-# DocLens
+# GoScan
 
 A document scanner for Android and iOS built with [Giode](https://github.com/xmhrnx/giode).
 
@@ -36,6 +36,7 @@ internal/pdf         PDF writer with AES-256 encryption
 internal/library     documents, pages, settings, storage, rendering and export
 ui/                  screens and components, one per file
 assets/              Inter font, Lucide icons, app icon, licenses
+store/               store listing, compliance answers and screenshots
 ```
 
 ## Build
@@ -46,3 +47,9 @@ giode run android      # on a connected phone
 giode build android ios
 go test ./...
 ```
+
+## Releasing
+
+[RELEASING.md](RELEASING.md) covers signing, store accounts and the release workflow.
+The store listing text, questionnaire answers and graphics are in [store/](store/), and
+the privacy policy in [PRIVACY.md](PRIVACY.md).

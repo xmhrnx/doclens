@@ -87,7 +87,7 @@ func (s *enhanceScreen) previewArea() giode.Element {
 			giode.Spinner(giode.Styles{Width: 28, Height: 28, Color: cAccent}))))
 	}
 	return giode.Box(giode.Styles{FlexGrow: 1, Width: -1, Padding: giode.SymmetricInset(24, 12)},
-		giode.Box(giode.Styles{Width: -1, Height: -1}, kids...))
+		giode.Box(giode.Styles{Width: -1, Height: -1, Align: giode.AlignCenter, Justify: giode.JustifyCenter}, kids...))
 }
 
 // pager moves between pages of a multi-page scan.

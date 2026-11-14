@@ -10,7 +10,7 @@ import (
 	"github.com/xmhrnx/doclens/internal/pdfpages"
 )
 
-// OnShare imports what another app shares with DocLens: pictures go
+// OnShare imports what another app shares with GoScan: pictures go
 // through page detection and the review like imported photos, and each
 // PDF becomes a document of its own.
 func (a *App) OnShare(s giode.SharedContent) {
@@ -28,7 +28,7 @@ func (a *App) OnShare(s giode.SharedContent) {
 		}
 	}
 	if skipped > 0 || (len(s.Files) == 0 && s.Text != "") {
-		a.toasts.Show(giode.ToastWarning, "DocLens can import pictures and PDFs")
+		a.toasts.Show(giode.ToastWarning, "GoScan can import pictures and PDFs")
 	}
 	if len(pictures) > 0 {
 		newFlow(a, scanBatch, nil).importFiles(pictures)
