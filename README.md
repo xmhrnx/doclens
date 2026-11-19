@@ -47,3 +47,5 @@ giode run android      # on a connected phone
 giode build android ios
 go test ./...
 ```
+
+Releases and store submissions: [RELEASING.md](RELEASING.md).
