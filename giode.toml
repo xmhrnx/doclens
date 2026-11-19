@@ -13,7 +13,7 @@ package = "."
 platforms = ["android", "ios"]
 publisher = "Mehran Zahiroddini"
 description = "Scan documents with your phone: automatic edge detection, perspective correction, filters, signatures and password-protected PDFs."
-website = ""
+website = "https://xmhrnx.github.io/doclens/"
 licenses = "assets/licenses.json"   # refreshed on every build, shown in Settings
 
 [android]

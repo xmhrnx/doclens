@@ -1,0 +1,475 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DocLens: a document scanner for Android and iOS</title>
+<meta name="description" content="DocLens scans documents with your phone: automatic edge detection, perspective correction, filters, signatures and password-protected PDFs.">
+<meta name="theme-color" content="#0A0C14">
+<link rel="icon" type="image/png" href="img/favicon.png">
+<link rel="apple-touch-icon" href="img/icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #F5F6FB;
+  --surface: #FFFFFF;
+  --fill: #EEF0F8;
+  --text: #0E1222;
+  --muted: #6B7286;
+  --border: #E4E7F1;
+  --primary: #5B5BF0;
+  --accent: #8B5CF6;
+  --studio: #07080D;
+  --studio-panel: #12141E;
+  --studio-line: #262938;
+  --studio-text: #F4F5FA;
+  --studio-muted: #9AA0B4;
+  --lens: #7B7BFF;
+  --brand: linear-gradient(135deg, #6366F1, #8B5CF6 55%, #A855F7);
+  --shadow: 0 6px 24px rgba(27, 31, 68, .08);
+  --mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0A0C14;
+    --surface: #141724;
+    --fill: #1C2031;
+    --text: #F2F3F9;
+    --muted: #8E95AB;
+    --border: #262A3C;
+    --primary: #7B7BFF;
+    --accent: #A78BFA;
+    --shadow: 0 6px 24px rgba(0, 0, 0, .35);
+  }
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font: 16px/1.6 Inter, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+a { color: var(--primary); text-decoration: none; }
+a:hover { text-decoration: underline; }
+img { max-width: 100%; display: block; }
+.wrap { width: min(1120px, 100% - 40px); margin-inline: auto; }
+.label {
+  font: 500 12px/1 var(--mono);
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--primary);
+}
+
+/* Top bar */
+.nav {
+  position: absolute; inset: 0 0 auto; z-index: 5;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 20px max(20px, (100% - 1120px) / 2);
+  color: var(--studio-text);
+}
+.nav .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; color: inherit; }
+.nav .brand img { width: 32px; height: 32px; }
+.nav .links { display: flex; gap: 24px; font-size: 14px; }
+.nav .links a { color: var(--studio-muted); }
+.nav .links a:hover { color: var(--studio-text); text-decoration: none; }
+
+/* Hero: the scanner's viewfinder */
+.hero {
+  position: relative;
+  background:
+    radial-gradient(800px 500px at 80% 10%, rgba(139, 92, 246, .28), transparent 60%),
+    radial-gradient(700px 500px at 0% 100%, rgba(99, 102, 241, .22), transparent 60%),
+    var(--studio);
+  color: var(--studio-text);
+  padding: 120px 0 96px;
+  overflow: hidden;
+}
+.hero .wrap {
+  display: grid; grid-template-columns: 1.1fr .9fr; gap: 56px; align-items: center;
+}
+.hero-icon {
+  width: 88px; height: 88px; border-radius: 22px;
+  box-shadow: 0 18px 50px rgba(124, 58, 237, .45);
+  margin-bottom: 28px;
+}
+.hero h1 {
+  font-size: clamp(44px, 7vw, 76px); line-height: 1; letter-spacing: -.035em;
+  font-weight: 800; margin: 14px 0 20px;
+}
+.hero h1 span {
+  background: var(--brand); -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+.hero p.lead { font-size: 19px; color: var(--studio-muted); max-width: 520px; margin: 0 0 32px; }
+.hero .label { color: var(--lens); }
+.cta { display: flex; flex-wrap: wrap; gap: 12px; }
+.btn {
+  display: inline-flex; align-items: center; gap: 10px;
+  padding: 14px 22px; border-radius: 999px; font-weight: 600; font-size: 15px;
+  transition: transform .15s ease, box-shadow .15s ease;
+}
+.btn:hover { text-decoration: none; transform: translateY(-1px); }
+.btn-primary { background: var(--brand); color: #fff; box-shadow: 0 10px 28px rgba(91, 91, 240, .4); }
+.btn-ghost { color: var(--studio-text); border: 1px solid var(--studio-line); background: rgba(255,255,255,.03); }
+.btn svg { width: 18px; height: 18px; }
+
+.viewfinder {
+  position: relative; aspect-ratio: 3 / 4; max-width: 400px; width: 100%; justify-self: center;
+  border-radius: 32px; background: #0d0f18; border: 1px solid var(--studio-line);
+  box-shadow: 0 30px 80px rgba(0,0,0,.5), inset 0 0 0 8px #0a0b12;
+  overflow: hidden;
+  perspective: 900px;
+}
+.viewfinder::before { /* the desk under the page */
+  content: ""; position: absolute; inset: 0;
+  background:
+    radial-gradient(circle at 30% 20%, rgba(255,255,255,.06), transparent 50%),
+    repeating-linear-gradient(115deg, #1a1712 0 14px, #1d1a14 14px 30px);
+  opacity: .9;
+}
+.sheet {
+  position: absolute; left: 20%; top: 16%; width: 60%; height: 64%;
+  background: #fbfbf7; border-radius: 4px;
+  transform: rotateX(24deg) rotateZ(-7deg) skewX(4deg);
+  transform-origin: 50% 70%;
+  box-shadow: 0 30px 40px rgba(0,0,0,.45);
+  padding: 9% 9%;
+  animation: flatten 7s ease-in-out infinite;
+}
+.sheet i { display: block; height: 6px; border-radius: 3px; background: #c9cde0; margin-bottom: 9px; }
+.sheet i:first-child { width: 55%; height: 9px; background: #6366F1; margin-bottom: 16px; }
+.sheet i:nth-child(3) { width: 82%; }
+.sheet i:nth-child(5) { width: 64%; }
+.sheet i:nth-child(7) { width: 74%; }
+.sheet .sig {
+  position: absolute; right: 12%; bottom: 10%; width: 40%; height: 18%;
+}
+.outline { /* the tracked page outline */
+  position: absolute; left: 20%; top: 16%; width: 60%; height: 64%;
+  transform: rotateX(24deg) rotateZ(-7deg) skewX(4deg);
+  transform-origin: 50% 70%;
+  border: 2px solid var(--lens);
+  background: rgba(123,123,255,.10);
+  border-radius: 4px;
+  animation: flatten 7s ease-in-out infinite, track 7s ease-in-out infinite;
+}
+.outline b {
+  position: absolute; width: 14px; height: 14px; border-radius: 50%;
+  background: #fff; border: 3px solid var(--lens);
+}
+.outline b:nth-child(1) { left: -9px; top: -9px; }
+.outline b:nth-child(2) { right: -9px; top: -9px; }
+.outline b:nth-child(3) { right: -9px; bottom: -9px; }
+.outline b:nth-child(4) { left: -9px; bottom: -9px; }
+.scanline {
+  position: absolute; left: 10%; right: 10%; height: 2px; top: 12%;
+  background: linear-gradient(90deg, transparent, var(--lens), transparent);
+  box-shadow: 0 0 18px 4px rgba(123,123,255,.5);
+  animation: sweep 7s ease-in-out infinite;
+}
+.vf-ui {
+  position: absolute; inset: auto 0 0; padding: 18px; display: flex; justify-content: space-between; align-items: center;
+  background: linear-gradient(transparent, rgba(7,8,13,.9));
+  font: 500 11px/1 var(--mono); color: var(--studio-muted); letter-spacing: .08em;
+}
+.shutter { width: 54px; height: 54px; border-radius: 50%; border: 3px solid #fff; display: grid; place-items: center; }
+.shutter::after { content: ""; width: 40px; height: 40px; border-radius: 50%; background: #fff; animation: snap 7s infinite; }
+.vf-status { position: absolute; top: 18px; left: 50%; transform: translateX(-50%);
+  font: 500 11px/1 var(--mono); letter-spacing: .1em; color: #fff;
+  background: rgba(123,123,255,.85); padding: 7px 12px; border-radius: 999px; white-space: nowrap; }
+@keyframes flatten {
+  0%, 40% { transform: rotateX(24deg) rotateZ(-7deg) skewX(4deg); }
+  55%, 92% { transform: none; left: 14%; top: 10%; width: 72%; height: 72%; border-radius: 2px; }
+  100% { transform: rotateX(24deg) rotateZ(-7deg) skewX(4deg); }
+}
+@keyframes track { 0%, 40% { opacity: 1; } 50%, 95% { opacity: 0; } 100% { opacity: 1; } }
+@keyframes sweep { 0% { top: 12%; opacity: 0; } 8% { opacity: 1; } 38% { top: 82%; opacity: 1; } 44%, 100% { top: 82%; opacity: 0; } }
+@keyframes snap { 0%, 44% { transform: scale(1); } 47% { transform: scale(.82); } 50%, 100% { transform: scale(1); } }
+@media (prefers-reduced-motion: reduce) {
+  .sheet, .outline, .scanline, .shutter::after { animation: none; }
+  .scanline { display: none; }
+}
+
+/* Pipeline strip */
+.pipeline { background: var(--studio-panel); color: var(--studio-text); border-top: 1px solid var(--studio-line); }
+.pipeline ol {
+  list-style: none; margin: 0; padding: 26px 0; display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px;
+  counter-reset: step;
+}
+.pipeline li { counter-increment: step; font-size: 14px; color: var(--studio-muted); }
+.pipeline li::before {
+  content: "0" counter(step); display: block; font: 500 12px/1 var(--mono); color: var(--lens); margin-bottom: 8px; letter-spacing: .1em;
+}
+.pipeline li strong { color: var(--studio-text); display: block; font-weight: 600; font-size: 15px; }
+
+/* Sections */
+section { padding: 96px 0; }
+.head { max-width: 640px; margin-bottom: 48px; }
+.head h2 { font-size: clamp(30px, 4vw, 42px); line-height: 1.1; letter-spacing: -.025em; margin: 12px 0 14px; font-weight: 800; }
+.head p { color: var(--muted); font-size: 17px; margin: 0; }
+
+.grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+.card {
+  background: var(--surface); border: 1px solid var(--border); border-radius: 20px;
+  padding: 26px; box-shadow: var(--shadow);
+}
+.card .ic {
+  width: 44px; height: 44px; border-radius: 14px; display: grid; place-items: center;
+  background: color-mix(in srgb, var(--primary) 12%, var(--surface)); color: var(--primary); margin-bottom: 18px;
+}
+.card .ic svg { width: 22px; height: 22px; }
+.card h3 { margin: 0 0 8px; font-size: 18px; letter-spacing: -.01em; }
+.card p { margin: 0; color: var(--muted); font-size: 15px; }
+.card.wide { grid-column: span 2; }
+
+/* Filters */
+.filters { background: var(--surface); border-block: 1px solid var(--border); }
+.strip { display: grid; grid-template-columns: repeat(5, 1fr); gap: 14px; }
+.swatch { text-align: center; font-size: 14px; font-weight: 600; }
+.swatch .pg {
+  aspect-ratio: 3 / 4; border-radius: 10px; margin-bottom: 12px; position: relative; overflow: hidden;
+  background: linear-gradient(160deg, #efe6cf, #d9caa5 70%, #a99872);
+  padding: 16% 14%; box-shadow: var(--shadow);
+}
+.swatch .pg::after { /* the shadow a hand casts on the page */
+  content: ""; position: absolute; inset: 40% -20% -20% 30%;
+  background: radial-gradient(closest-side, rgba(40,30,10,.45), transparent);
+}
+.swatch .pg i { display: block; height: 5px; border-radius: 3px; background: #3a3424; margin-bottom: 8px; opacity: .8; }
+.swatch .pg i:first-child { width: 60%; height: 7px; background: #4b3fb0; margin-bottom: 14px; }
+.swatch .pg i:nth-child(3) { width: 80%; }
+.swatch .pg i:nth-child(5) { width: 55%; }
+.swatch .pg .stamp { position: absolute; right: 14%; bottom: 14%; width: 34%; aspect-ratio: 1; border-radius: 50%; border: 3px solid #c0392b; opacity: .75; }
+.swatch.magic .pg { background: #fff; filter: saturate(1.5) contrast(1.15); }
+.swatch.magic .pg::after, .swatch.noshadow .pg::after { display: none; }
+.swatch.noshadow .pg { background: #f7f5ef; }
+.swatch.gray .pg { filter: grayscale(1); }
+.swatch.bw .pg { background: #fff; filter: grayscale(1) contrast(4) brightness(1.1); }
+.swatch.bw .pg::after { display: none; }
+.swatch small { display: block; color: var(--muted); font-weight: 400; font-size: 13px; }
+
+/* Privacy band */
+.privacy .box {
+  display: grid; grid-template-columns: auto 1fr; gap: 28px; align-items: center;
+  background: var(--studio); color: var(--studio-text); border-radius: 28px; padding: 44px;
+  background-image: radial-gradient(600px 300px at 100% 0, rgba(139,92,246,.25), transparent 70%);
+}
+.privacy .shield { width: 72px; height: 72px; border-radius: 22px; background: var(--brand); display: grid; place-items: center; }
+.privacy .shield svg { width: 36px; height: 36px; color: #fff; }
+.privacy h2 { margin: 0 0 8px; font-size: 26px; letter-spacing: -.02em; }
+.privacy p { margin: 0; color: var(--studio-muted); }
+
+/* Download */
+.download { text-align: center; }
+.download .head { margin-inline: auto; }
+.platforms { display: flex; justify-content: center; flex-wrap: wrap; gap: 16px; margin-bottom: 28px; }
+.platform {
+  display: flex; align-items: center; gap: 14px; text-align: left;
+  background: var(--surface); border: 1px solid var(--border); border-radius: 18px; padding: 18px 24px; min-width: 240px;
+  color: var(--text); box-shadow: var(--shadow);
+}
+.platform:hover { text-decoration: none; border-color: var(--primary); }
+.platform svg { width: 30px; height: 30px; color: var(--primary); flex: none; }
+.platform small { display: block; color: var(--muted); font-size: 13px; }
+.platform strong { font-size: 17px; }
+.download .note { color: var(--muted); font-size: 14px; }
+
+footer { border-top: 1px solid var(--border); padding: 32px 0 44px; color: var(--muted); font-size: 14px; }
+footer .wrap { display: flex; flex-wrap: wrap; gap: 16px; justify-content: space-between; align-items: center; }
+footer .brand { display: flex; align-items: center; gap: 10px; color: var(--text); font-weight: 700; }
+footer .brand img { width: 26px; height: 26px; }
+footer nav { display: flex; gap: 20px; flex-wrap: wrap; }
+
+@media (max-width: 900px) {
+  .hero .wrap { grid-template-columns: 1fr; gap: 48px; }
+  .hero { padding-top: 104px; }
+  .grid { grid-template-columns: 1fr 1fr; }
+  .card.wide { grid-column: span 2; }
+  .strip { grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; }
+  .pipeline ol { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 600px) {
+  .nav .links a:not(.gh) { display: none; }
+  section { padding: 72px 0; }
+  .hero-icon { width: 72px; height: 72px; border-radius: 18px; }
+  .hero p.lead { font-size: 17px; }
+  .grid { grid-template-columns: 1fr; }
+  .card.wide { grid-column: auto; }
+  .strip { grid-template-columns: repeat(3, 1fr); }
+  .privacy .box { grid-template-columns: 1fr; padding: 32px 26px; }
+  .platform { width: 100%; }
+  .viewfinder { max-width: 320px; }
+}
+</style>
+</head>
+<body>
+
+<header class="nav">
+  <a class="brand" href="#"><img src="img/icon.png" alt="">DocLens</a>
+  <nav class="links">
+    <a href="#features">Features</a>
+    <a href="#filters">Filters</a>
+    <a href="#download">Download</a>
+    <a class="gh" href="https://github.com/xmhrnx/doclens">GitHub</a>
+  </nav>
+</header>
+
+<main>
+<div class="hero">
+  <div class="wrap">
+    <div>
+      <img class="hero-icon" src="img/icon.png" alt="DocLens app icon" width="88" height="88">
+      <div class="label">Document scanner · Android &amp; iOS</div>
+      <h1>Paper in,<br><span>clean PDF out.</span></h1>
+      <p class="lead">DocLens finds the page in the camera picture, flattens it, cleans away shadows and turns it into a searchable, optionally password-protected PDF. All on your phone.</p>
+      <div class="cta">
+        <a class="btn btn-primary" href="https://github.com/xmhrnx/doclens/releases/latest">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V3"/><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/></svg>
+          Download
+        </a>
+        <a class="btn btn-ghost" href="https://github.com/xmhrnx/doclens">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5C5.65.5.5 5.65.5 12a11.5 11.5 0 0 0 7.86 10.92c.58.1.79-.25.79-.56v-2c-3.2.7-3.87-1.37-3.87-1.37-.52-1.33-1.28-1.69-1.28-1.69-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.56-.29-5.25-1.28-5.25-5.7 0-1.26.45-2.29 1.19-3.1-.12-.29-.52-1.47.11-3.06 0 0 .97-.31 3.17 1.18a11 11 0 0 1 5.77 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.77.11 3.06.74.81 1.19 1.84 1.19 3.1 0 4.43-2.7 5.4-5.27 5.69.41.36.78 1.06.78 2.14v3.17c0 .31.21.67.8.56A11.5 11.5 0 0 0 23.5 12C23.5 5.65 18.35.5 12 .5Z"/></svg>
+          Source code
+        </a>
+      </div>
+    </div>
+
+    <div class="viewfinder" aria-hidden="true">
+      <div class="sheet">
+        <i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+        <svg class="sig" viewBox="0 0 120 40" fill="none" stroke="#2b2f73" stroke-width="2.5" stroke-linecap="round"><path d="M4 30c10-22 18-24 20-10s6 14 14-4 12-6 14 6 10 0 18-10 16 4 26 2 12-6 16-8"/></svg>
+      </div>
+      <div class="outline"><b></b><b></b><b></b><b></b></div>
+      <div class="scanline"></div>
+      <div class="vf-status">PAGE FOUND · HOLD STILL</div>
+      <div class="vf-ui"><span>AUTO</span><span class="shutter"></span><span>BATCH</span></div>
+    </div>
+  </div>
+</div>
+
+<div class="pipeline">
+  <div class="wrap">
+    <ol>
+      <li><strong>Find the page</strong>Lines, contours and color, scored and refined to sub-pixel accuracy</li>
+      <li><strong>Flatten it</strong>Recovers the true aspect ratio from the perspective</li>
+      <li><strong>Clean it up</strong>Shadows and uneven light removed, non-destructively</li>
+      <li><strong>Export</strong>PDF with a searchable text layer, or JPEG pages</li>
+    </ol>
+  </div>
+</div>
+
+<section id="features">
+  <div class="wrap">
+    <div class="head">
+      <div class="label">Features</div>
+      <h2>Everything between the camera and the finished file.</h2>
+      <p>From the live viewfinder to a signed, encrypted PDF, without leaving the app.</p>
+    </div>
+    <div class="grid">
+      <div class="card wide">
+        <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7V5a2 2 0 0 1 2-2h2"/><path d="M17 3h2a2 2 0 0 1 2 2v2"/><path d="M21 17v2a2 2 0 0 1-2 2h-2"/><path d="M7 21H5a2 2 0 0 1-2-2v-2"/><path d="M7 12h10"/></svg></div>
+        <h3>Live scanner</h3>
+        <p>The page outline is tracked as you aim, and the shot is taken automatically once the page holds still. Torch, tap to focus and scan modes are a tap away; the full-resolution shot is then analysed again.</p>
+      </div>
+      <div class="card">
+        <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 7v14"/><path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"/></svg></div>
+        <h3>Scan modes</h3>
+        <p>Batch, ID card (front and back on one sheet at real size) and book, which splits a two-page spread in two.</p>
+      </div>
+      <div class="card">
+        <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2v14a2 2 0 0 0 2 2h14"/><path d="M18 22V8a2 2 0 0 0-2-2H2"/></svg></div>
+        <h3>Edit pages</h3>
+        <p>Crop with draggable corners, a magnifier and snapping. Rotate, retake, reorder, extract pages into a new document or merge documents, with undo.</p>
+      </div>
+      <div class="card">
+        <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21 17-2.16-1.44a2 2 0 0 0-1.9-.18l-2.12.88a2 2 0 0 1-1.9-.18L3 9"/><path d="M14 3 5 12l2 2 9-9"/><path d="M3 21h18"/></svg></div>
+        <h3>Sign and mark up</h3>
+        <p>Pen and highlighter, plus saved hand-drawn signatures you place and resize on any page.</p>
+      </div>
+      <div class="card">
+        <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="M4 7V4h16v3"/><path d="M9 20h6"/><path d="M12 4v16"/></svg></div>
+        <h3>Searchable text</h3>
+        <p>Text is recognized on the device in the background. Search finds words inside pages, copy or share a page's text, and PDFs get an invisible text layer.</p>
+      </div>
+      <div class="card">
+        <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><rect x="8" y="12" width="8" height="6" rx="1"/><path d="M10 12v-2a2 2 0 1 1 4 0v2"/></svg></div>
+        <h3>Export</h3>
+        <p>PDF in Auto, A4, Letter or Legal with margins and three quality levels, AES-256 passwords and watermarks. Or JPEG pages and one long image.</p>
+      </div>
+      <div class="card wide">
+        <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/></svg></div>
+        <h3>A library that stays tidy</h3>
+        <p>Folders, favorites and search; import photos from your library or existing PDFs, page by page. Pinch to zoom, print, save to Photos, share every page at once. Light and dark themes.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="filters" class="filters">
+  <div class="wrap">
+    <div class="head">
+      <div class="label">Enhancement</div>
+      <h2>Five looks, one tap each.</h2>
+      <p>Pick a filter and fine-tune brightness and contrast. Every edit is non-destructive, so the original is always one tap away.</p>
+    </div>
+    <div class="strip" aria-label="Illustration of the five filters">
+      <div class="swatch magic"><div class="pg"><i></i><i></i><i></i><i></i><i></i><span class="stamp"></span></div>Magic Color<small>vivid, clean white</small></div>
+      <div class="swatch noshadow"><div class="pg"><i></i><i></i><i></i><i></i><i></i><span class="stamp"></span></div>No Shadow<small>evened-out light</small></div>
+      <div class="swatch gray"><div class="pg"><i></i><i></i><i></i><i></i><i></i><span class="stamp"></span></div>Grayscale<small>tones, no color</small></div>
+      <div class="swatch bw"><div class="pg"><i></i><i></i><i></i><i></i><i></i><span class="stamp"></span></div>B&amp;W<small>crisp for text</small></div>
+      <div class="swatch original"><div class="pg"><i></i><i></i><i></i><i></i><i></i><span class="stamp"></span></div>Original<small>as photographed</small></div>
+    </div>
+  </div>
+</section>
+
+<section class="privacy">
+  <div class="wrap">
+    <div class="box">
+      <div class="shield"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></svg></div>
+      <div>
+        <h2>Your documents stay on your phone.</h2>
+        <p>Scanning and text recognition run on the device, and documents never leave it unless you share them. Lock the app with a PIN, fingerprint or Face ID; it locks again whenever it leaves the screen.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="download" class="download">
+  <div class="wrap">
+    <div class="head">
+      <div class="label">Download</div>
+      <h2>Get DocLens</h2>
+      <p>Builds are attached to each release on GitHub.</p>
+    </div>
+    <div class="platforms">
+      <a class="platform" href="https://github.com/xmhrnx/doclens/releases/latest">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.6 9.48 19.44 6.3a.38.38 0 0 0-.66-.38l-1.86 3.22a11.4 11.4 0 0 0-9.84 0L5.22 5.92a.38.38 0 0 0-.66.38L6.4 9.48A10.8 10.8 0 0 0 1 18h22a10.8 10.8 0 0 0-5.4-8.52ZM7 15.25a1.25 1.25 0 1 1 0-2.5 1.25 1.25 0 0 1 0 2.5Zm10 0a1.25 1.25 0 1 1 0-2.5 1.25 1.25 0 0 1 0 2.5Z"/></svg>
+        <span><small>Android 7.0 or later</small><strong>Android</strong></span>
+      </a>
+      <a class="platform" href="https://github.com/xmhrnx/doclens/releases/latest">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M16.37 12.73c-.02-2.3 1.88-3.4 1.96-3.46a4.24 4.24 0 0 0-3.33-1.8c-1.42-.15-2.77.83-3.49.83-.72 0-1.83-.81-3-.79a4.45 4.45 0 0 0-3.77 2.28c-1.6 2.79-.41 6.92 1.16 9.18.76 1.11 1.67 2.35 2.87 2.31 1.15-.05 1.58-.75 2.97-.75s1.78.75 3 .72c1.24-.02 2.02-1.13 2.78-2.24a9.9 9.9 0 0 0 1.26-2.6 4.02 4.02 0 0 1-2.41-3.68ZM14.08 5.98A4.06 4.06 0 0 0 15.02 3a4.17 4.17 0 0 0-2.7 1.4 3.9 3.9 0 0 0-.97 2.86 3.45 3.45 0 0 0 2.73-1.28Z"/></svg>
+        <span><small>iOS 15 or later</small><strong>iOS</strong></span>
+      </a>
+    </div>
+    <p class="note">Or build it yourself: <a href="https://github.com/xmhrnx/doclens">github.com/xmhrnx/doclens</a></p>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <a class="brand" href="#"><img src="img/icon.png" alt="">DocLens</a>
+    <nav>
+      <a href="https://github.com/xmhrnx/doclens">Source</a>
+      <a href="https://github.com/xmhrnx/doclens/releases">Releases</a>
+      <a href="https://github.com/xmhrnx/doclens/blob/main/LICENSE">Apache License 2.0</a>
+    </nav>
+    <span>Built with <a href="https://github.com/xmhrnx/giode">Giode</a>.</span>
+  </div>
+</footer>
+</body>
+</html>

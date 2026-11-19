@@ -1,6 +1,7 @@
 # DocLens
 
 A document scanner for Android and iOS built with [Giode](https://github.com/xmhrnx/giode).
+Website: [xmhrnx.github.io/doclens](https://xmhrnx.github.io/doclens/).
 
 - **Live scanner**: the camera picture with the page outline tracked
   as you aim, automatic capture once the page holds still, torch, tap to
