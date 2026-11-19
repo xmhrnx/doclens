@@ -7,6 +7,8 @@ id = "com.xmhrnx.doclens"     # reverse-DNS, unique to the app; stores never let
 version = "1.0.0"
 build = 1                    # raise for every store upload (giode bump)
 icon = "assets/icon.png"
+splash_color = "#0A0C14"          # launch background: the dark theme's
+splash_color_light = "#F5F6FB"    # and the light theme's, no white flash
 package = "."
 platforms = ["android", "ios"]
 publisher = "Mehran Zahiroddini"
@@ -16,6 +18,7 @@ licenses = "assets/licenses.json"   # refreshed on every build, shown in Setting
 
 [android]
 min_sdk = 24
+notifications = false        # the app never posts one: no POST_NOTIFICATIONS prompt
 # giode's camera package adds the CAMERA permission and the biometric
 # package USE_BIOMETRIC; text recognition bundles ML Kit. The camera is
 # optional so tablets without one can still import pictures and PDFs.
