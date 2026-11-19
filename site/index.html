@@ -263,6 +263,19 @@ section { padding: 96px 0; }
 .privacy h2 { margin: 0 0 8px; font-size: 26px; letter-spacing: -.02em; }
 .privacy p { margin: 0; color: var(--studio-muted); }
 
+/* Privacy policy */
+.policy { margin-top: 40px; display: grid; grid-template-columns: 260px 1fr; gap: 40px; }
+.policy aside { color: var(--muted); font-size: 14px; }
+.policy aside h2 { color: var(--text); font-size: 26px; letter-spacing: -.02em; margin: 12px 0 10px; line-height: 1.15; }
+.policy aside p { margin: 0 0 8px; }
+.policy .terms { display: grid; gap: 14px; min-width: 0; }
+.policy .term { background: var(--surface); border: 1px solid var(--border); border-radius: 18px; padding: 22px 24px; }
+.policy .term h3 { margin: 0 0 6px; font-size: 16px; letter-spacing: -.01em; }
+.policy .term p, .policy .term li { margin: 0; color: var(--muted); font-size: 15px; overflow-wrap: anywhere; }
+.policy .term ul { margin: 6px 0 0; padding-left: 20px; }
+.policy .term li + li { margin-top: 4px; }
+.policy .term p + p, .policy .term ul + p { margin-top: 8px; }
+
 /* Download */
 .download { text-align: center; }
 .download .head { margin-inline: auto; }
@@ -291,6 +304,7 @@ footer nav { display: flex; gap: 20px; flex-wrap: wrap; }
   .card.wide { grid-column: span 2; }
   .strip { grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; }
   .pipeline ol { grid-template-columns: 1fr 1fr; }
+  .policy { grid-template-columns: 1fr; }
 }
 @media (max-width: 600px) {
   .nav .links a:not(.gh) { display: none; }
@@ -301,6 +315,8 @@ footer nav { display: flex; gap: 20px; flex-wrap: wrap; }
   .card.wide { grid-column: auto; }
   .strip { grid-template-columns: repeat(3, 1fr); }
   .privacy .box { grid-template-columns: 1fr; padding: 32px 26px; }
+  .policy { gap: 20px; }
+  .policy .term { padding: 20px; }
   .platform { width: 100%; }
   .viewfinder { max-width: 320px; }
 }
@@ -313,6 +329,7 @@ footer nav { display: flex; gap: 20px; flex-wrap: wrap; }
   <nav class="links">
     <a href="#features">Features</a>
     <a href="#filters">Filters</a>
+    <a href="#privacy">Privacy</a>
     <a href="#download">Download</a>
     <a class="gh" href="https://github.com/xmhrnx/doclens">GitHub</a>
   </nav>
@@ -426,13 +443,52 @@ footer nav { display: flex; gap: 20px; flex-wrap: wrap; }
   </div>
 </section>
 
-<section class="privacy">
+<section id="privacy" class="privacy">
   <div class="wrap">
     <div class="box">
       <div class="shield"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></svg></div>
       <div>
         <h2>Your documents stay on your phone.</h2>
         <p>Scanning and text recognition run on the device, and documents never leave it unless you share them. Lock the app with a PIN, fingerprint or Face ID; it locks again whenever it leaves the screen.</p>
+      </div>
+    </div>
+
+    <div class="policy">
+      <aside>
+        <div class="label">Privacy policy</div>
+        <h2>What DocLens does with your data</h2>
+        <p>This policy covers the DocLens apps for Android and iOS.</p>
+        <p>Last updated 19 November 2026.</p>
+      </aside>
+      <div class="terms">
+        <div class="term">
+          <h3>No account, no server, no tracking</h3>
+          <p>DocLens has no sign-in, no servers of its own, no advertising and no analytics. Its developer receives nothing from the app: no documents, no usage data, no crash reports. Nothing is used to track you across apps or websites.</p>
+        </div>
+        <div class="term">
+          <h3>What stays on your phone</h3>
+          <p>Everything DocLens keeps is stored in the app's private storage on your device:</p>
+          <ul>
+            <li>your documents and folders, the page pictures, crops, filters and markup;</li>
+            <li>the text recognized on pages, used for search and searchable PDFs;</li>
+            <li>the signatures you draw;</li>
+            <li>your settings, including the author name written into exported PDFs.</li>
+          </ul>
+          <p>If you set an app lock PIN, only a salted hash of it is kept, in the system's secure storage (Keychain on iOS, Keystore-protected storage on Android). Fingerprint and Face ID are checked by the system; DocLens never sees them. Uninstalling DocLens removes all of it. Your phone's own backup (iCloud or Google) may include this data, depending on your settings.</p>
+        </div>
+        <div class="term">
+          <h3>Camera, photos and files</h3>
+          <p>The camera is used only while you scan, and pictures are processed on the device. Photos and PDFs are read only when you pick them to import. DocLens writes to your photo library only when you choose Save to Photos, and creates files only when you save, share or print one: where they go then is up to you and the app or printer you choose.</p>
+        </div>
+        <div class="term">
+          <h3>Text recognition</h3>
+          <p>Text is recognized on the device: by Apple's Vision framework on iOS, and by Google's ML Kit with its model built into the app on Android. Page pictures and their text are never uploaded.</p>
+          <p>On Android, ML Kit itself sends Google diagnostic and usage information so Google can maintain it: the device model and Android version, the app's package name and version, a per-installation identifier that does not identify you or your device, and performance and error metrics. It is sent over HTTPS and not shared with third parties. See <a href="https://developers.google.com/ml-kit/android-data-disclosure">Google's ML Kit data disclosure</a>. The iOS app sends nothing.</p>
+        </div>
+        <div class="term">
+          <h3>Children, changes and contact</h3>
+          <p>DocLens is not directed at children, and its developer collects no data from anyone. If this policy changes, the new version is published on this page with a new date. Questions: open an issue at <a href="https://github.com/xmhrnx/doclens/issues">github.com/xmhrnx/doclens/issues</a>.</p>
+        </div>
       </div>
     </div>
   </div>
@@ -466,6 +522,7 @@ footer nav { display: flex; gap: 20px; flex-wrap: wrap; }
     <nav>
       <a href="https://github.com/xmhrnx/doclens">Source</a>
       <a href="https://github.com/xmhrnx/doclens/releases">Releases</a>
+      <a href="#privacy">Privacy</a>
       <a href="https://github.com/xmhrnx/doclens/blob/main/LICENSE">Apache License 2.0</a>
     </nav>
     <span>Built with <a href="https://github.com/xmhrnx/giode">Giode</a>.</span>
