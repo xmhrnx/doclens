@@ -18,6 +18,12 @@ licenses = "assets/licenses.json"   # refreshed on every build, shown in Setting
 
 [android]
 min_sdk = 24
+# Google Play requires Android 16 (API 36) for new apps and updates since 31 Aug 2026
+target_sdk = 36
+# Targeting 36 turns predictive back on, and Android then stops calling
+# onBackPressed, which Gio's activity uses for giode.HandleBack (closing
+# screens and sheets). Opt out until Gio moves to OnBackInvokedCallback.
+application_attributes = { enableOnBackInvokedCallback = "false" }
 notifications = false        # the app never posts one: no POST_NOTIFICATIONS prompt
 # giode's camera package adds the CAMERA permission and the biometric
 # package USE_BIOMETRIC; text recognition bundles ML Kit. The camera is
@@ -27,10 +33,14 @@ icon_foreground = "assets/android-foreground.png"   # adaptive icon layers, from
 icon_background = "assets/android-background.png"
 icon_monochrome = "assets/android-monochrome.png"
 java = ["android/java"]       # PdfPages.java: renders PDF pages for "Import PDF"
-# keystore = "release.keystore"   # created by giode keystore; signs giode build -release
+# Play upload key: giode build -release signs with it. Created once with
+# giode keystore (never committed, see .gitignore); CI writes it from the
+# ANDROID_KEYSTORE_BASE64 secret, the password is GIODE_KEYSTORE_PASS.
+keystore = "release.keystore"
 
 [ios]
 min_os = 15
+icon = "assets/icon-ios.png"   # opaque, full-bleed, no alpha channel: iOS rounds the corners itself
 
 [ios.usage]
 camera = "DocLens uses the camera to scan documents."
@@ -38,6 +48,20 @@ photos = "DocLens turns photos you pick into scans."
 photos_add = "DocLens saves scanned pages to your photo library when you ask."
 faceid = "DocLens can unlock your documents with Face ID."
 
+[ios.plist]
+# PDF passwords use AES-256 (a standard algorithm) and the rest is Apple's
+# own crypto: exempt, no export documentation needed except for France.
+ITSAppUsesNonExemptEncryption = false
+
+[privacy]                         # PrivacyInfo.xcprivacy for the App Store
+tracking = false
+# Nothing is collected: on iOS scans, text recognition (Vision) and settings
+# stay on the device, and DocLens has no server, account or analytics.
+
+# GitHub Actions: giode ci -f writes .github/workflows/release.yml from this.
+# After regenerating, redo two edits in it: pin the CLI
+# (go install github.com/xmhrnx/giode-cli/cmd/giode@v0.1.35-alpha.1, not
+# @latest) and use go-version-file: go.mod (not go-version: stable).
 [ci]
 trigger = "release"                    # build only when a GitHub release is published
 test = "go vet ./... && go test ./..."

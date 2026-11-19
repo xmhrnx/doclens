@@ -121,6 +121,8 @@ def down(img, n): return img.resize((n, n), Image.LANCZOS)
 bg = background((S, S))
 full = Image.alpha_composite(bg, glyph((S, S)))
 down(full, 1024).save(out + '/icon.png')
+# iOS: the same square without an alpha channel (App Store Connect refuses one).
+down(full, 1024).convert('RGB').save(out + '/icon-ios.png')
 down(rounded(full, int(S * 0.225)), 1024).save(out + '/logo.png')
 
 # Android adaptive layers: 108dp canvas, art in the middle 66dp.
