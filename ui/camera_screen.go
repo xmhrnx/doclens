@@ -261,7 +261,7 @@ func (s *cameraScreen) placeholder() giode.Element {
 	case s.denied:
 		kids = []giode.Element{
 			icon("camera", 40, cStudioMuted),
-			giode.Text("DocLens needs the camera to scan", giode.Styles{FontSize: 17, FontWeight: giode.FontWeightSemiBold, Color: cStudioText}),
+			giode.Text("GoScan needs the camera to scan", giode.Styles{FontSize: 17, FontWeight: giode.FontWeightSemiBold, Color: cStudioText}),
 			giode.Text("Allow camera access in the system settings, or use the system camera for now.",
 				giode.Styles{FontSize: 14, Color: cStudioMuted, TextAlign: giode.TextAlignCenter}),
 			actionButton("camFallback", buttonStudio, "camera", "Use the system camera", false, s.useSystemCamera),

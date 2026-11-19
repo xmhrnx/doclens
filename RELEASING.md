@@ -1,4 +1,4 @@
-# Releasing DocLens
+# Releasing GoScan
 
 Publishing a GitHub release with a tag like `v1.0.0` runs
 `.github/workflows/release.yml`. The tag sets the version and the workflow's
@@ -8,19 +8,23 @@ by the Giode CLI from `giode.toml`: after changing `[ci]` or a store section,
 run `giode ci -f` instead of editing it, then redo the two edits the comment
 above `[ci]` describes (pin the CLI version, take Go's version from `go.mod`).
 
-DocLens is a phone app (`platforms = ["android", "ios"]`), so it goes to two
+GoScan is a phone app (`platforms = ["android", "ios"]`), so it goes to two
 stores:
 
 | Where | What the release gets | Needs |
 | --- | --- | --- |
-| Google Play | `DocLens.aab`, signed with the upload key | a Play Console account and the keystore secrets |
-| Apple App Store (iPhone and iPad) | `DocLens.ipa` to upload with Transporter | an Apple Developer account, the distribution certificate and an App Store profile |
+| Google Play | `GoScan.aab`, signed with the upload key | a Play Console account and the keystore secrets |
+| Apple App Store (iPhone and iPad) | `GoScan.ipa` to upload with Transporter | an Apple Developer account, the distribution certificate and an App Store profile |
 
-There is no Microsoft Store or Mac App Store package: DocLens is built for
+There is no Microsoft Store or Mac App Store package: GoScan is built for
 phones only (a camera scanner with a touch UI), so `windows` and `macos` are
 not in its platforms. Without the signing secrets the Android job still
 builds an AAB signed with the debug key (Play refuses it), and the iOS job
 only checks that the app builds for the simulator.
+
+The app was called DocLens before anything was uploaded to a store; the
+GitHub repository, the Go module path and the website address
+(`xmhrnx.github.io/doclens`) keep that name, the app name and ID do not.
 
 The privacy policy every store asks for is on the website:
 <https://xmhrnx.github.io/doclens/#privacy>.
@@ -36,7 +40,7 @@ rest of the release still builds.
 | --- | --- |
 | `ANDROID_KEYSTORE_BASE64`, `GIODE_KEYSTORE_PASS` | The upload keystore (`release.keystore`) and its password: signs the `.aab` |
 | `IOS_CERT_BASE64`, `IOS_CERT_PASS` | The "Apple Distribution" certificate as a `.p12`, and its password |
-| `IOS_PROFILE_BASE64` | The "App Store Connect" provisioning profile for `com.xmhrnx.doclens` (`.mobileprovision`) |
+| `IOS_PROFILE_BASE64` | The "App Store Connect" provisioning profile for `com.xmhrnx.goscan` (`.mobileprovision`) |
 | `IOS_TEAM_ID` | Your Apple team ID (10 characters, shown under Membership) |
 
 `giode.toml` sets `android.keystore = "release.keystore"`: the workflow writes
@@ -55,9 +59,10 @@ sign without the setting. `*.keystore` is in `.gitignore`; never commit it.
    Keep `release.keystore` and its password somewhere safe (a password
    manager): every future update must be signed with it. Add both as the
    `ANDROID_KEYSTORE_BASE64` and `GIODE_KEYSTORE_PASS` secrets.
-3. In Play Console, create the app "DocLens" (App, Free). The package name is
-   `com.xmhrnx.doclens` (the `app.id` in `giode.toml`); it can never change.
-4. Publish a release on GitHub. Upload the `DocLens.aab` it gets to a testing
+3. In Play Console, create the app "GoScan" (App, Free). The package name is
+   `com.xmhrnx.goscan` (the `app.id` in `giode.toml`); after the first upload
+   it can never change.
+4. Publish a release on GitHub. Upload the `GoScan.aab` it gets to a testing
    track (internal testing first). On the first upload, accept **Play App
    Signing**: Google keeps the app signing key and `release.keystore` stays
    your upload key. If it's ever lost, Play support can reset the upload key.
@@ -84,17 +89,18 @@ Console under the bundle's details.
 
 1. Join the Apple Developer Program.
 2. In Certificates, Identifiers & Profiles:
-   - Register the App ID `com.xmhrnx.doclens` (the `app.id` in `giode.toml`).
-     It needs no extra capabilities.
+   - Register the App ID `com.xmhrnx.goscan` (the `app.id` in `giode.toml`).
+     It needs no extra capabilities. Once an app uses it in App Store
+     Connect, the bundle ID can no longer change.
    - Create an "Apple Distribution" certificate, export it from Keychain
      Access as a `.p12` with a password.
    - Create an "App Store Connect" provisioning profile for the App ID and
      that certificate.
 3. Add `IOS_CERT_BASE64`, `IOS_CERT_PASS`, `IOS_PROFILE_BASE64` and
    `IOS_TEAM_ID`.
-4. In App Store Connect, create the app: platform iOS, name "DocLens",
-   bundle ID `com.xmhrnx.doclens`, a SKU such as `doclens`.
-5. Publish a release on GitHub. It gets `DocLens.ipa`; upload it with the
+4. In App Store Connect, create the app: platform iOS, name "GoScan",
+   bundle ID `com.xmhrnx.goscan`, a SKU such as `goscan`.
+5. Publish a release on GitHub. It gets `GoScan.ipa`; upload it with the
    Transporter app, test it in TestFlight, then submit it for review with the
    listing below.
 
@@ -109,7 +115,7 @@ Connect requires (`assets/icon-source/make.py` makes it with the others).
 
 Accurate to the code; paste as is.
 
-**Name:** DocLens
+**Name:** GoScan
 
 **Subtitle (Apple, ≤30):** Scan documents to clean PDFs
 
@@ -119,7 +125,7 @@ Accurate to the code; paste as is.
 
 **Description:**
 
-> DocLens turns paper into clean PDFs with your phone's camera. It finds the
+> GoScan turns paper into clean PDFs with your phone's camera. It finds the
 > page as you aim, takes the picture once the page holds still, flattens it and
 > cleans away shadows. Everything happens on your phone.
 >
@@ -158,7 +164,7 @@ Accurate to the code; paste as is.
 > - No account, no ads, no tracking
 > - Lock the app with a PIN, fingerprint or Face ID
 >
-> DocLens is open source: github.com/xmhrnx/doclens
+> GoScan is open source: github.com/xmhrnx/doclens
 
 **Category:** Productivity (Apple secondary: Business; Play: Productivity).
 
@@ -195,7 +201,7 @@ Answer:
   stay on the device.
 - Ads: **No**. Government app, financial features, health: **No**.
 
-**Export compliance (Apple):** answered in the build. DocLens uses Apple's own
+**Export compliance (Apple):** answered in the build. GoScan uses Apple's own
 encryption (the Keychain holds the app lock) and AES-256, a standard
 algorithm, for PDF passwords; it makes no network connections of its own: exempt, no documentation needed. If you make
 the app available in France, App Store Connect may still ask for the French

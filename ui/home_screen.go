@@ -101,7 +101,7 @@ func (h *homeScreen) header() giode.Element {
 		giode.Box(giode.Styles{Width: 46, Height: 46, BorderRadius: 12, BoxShadow: shadowFab, Margin: giode.Inset{Right: 12}},
 			brandMark(h.a, 46)),
 		giode.Stack(giode.Styles{FlexGrow: 1, Gap: 2},
-			giode.Text("DocLens", with(tDisplay, giode.Styles{FontSize: 26})),
+			giode.Text("GoScan", with(tDisplay, giode.Styles{FontSize: 26})),
 			giode.Text(sub, tCaption),
 		),
 		iconTile("settings", "settings", false, func() { h.a.push(newSettingsScreen(h.a)) }),
@@ -225,7 +225,7 @@ func (h *homeScreen) sectionTitle(docs []*library.Document) giode.Element {
 }
 
 func (h *homeScreen) emptyState() giode.Element {
-	msg, sub := "No documents yet", "Tap Scan to capture your first page. DocLens finds the edges, flattens the page and cleans it up."
+	msg, sub := "No documents yet", "Tap Scan to capture your first page. GoScan finds the edges, flattens the page and cleans it up."
 	if h.search.Text() != "" || h.folder != filterAll {
 		msg, sub = "Nothing here", "No documents match. Try another search or folder."
 	}

@@ -2,8 +2,8 @@
 # Reference: https://github.com/xmhrnx/giode-cli#giodetoml
 
 [app]
-name = "DocLens"
-id = "com.xmhrnx.doclens"     # reverse-DNS, unique to the app; stores never let it change
+name = "GoScan"
+id = "com.xmhrnx.goscan"      # reverse-DNS, unique to the app; fixed for good by the first store upload
 version = "1.0.0"
 build = 1                    # raise for every store upload (giode bump)
 icon = "assets/icon.png"
@@ -43,10 +43,10 @@ min_os = 15
 icon = "assets/icon-ios.png"   # opaque, full-bleed, no alpha channel: iOS rounds the corners itself
 
 [ios.usage]
-camera = "DocLens uses the camera to scan documents."
-photos = "DocLens turns photos you pick into scans."
-photos_add = "DocLens saves scanned pages to your photo library when you ask."
-faceid = "DocLens can unlock your documents with Face ID."
+camera = "GoScan uses the camera to scan documents."
+photos = "GoScan turns photos you pick into scans."
+photos_add = "GoScan saves scanned pages to your photo library when you ask."
+faceid = "GoScan can unlock your documents with Face ID."
 
 [ios.plist]
 # PDF passwords use AES-256 (a standard algorithm) and the rest is Apple's
@@ -56,7 +56,7 @@ ITSAppUsesNonExemptEncryption = false
 [privacy]                         # PrivacyInfo.xcprivacy for the App Store
 tracking = false
 # Nothing is collected: on iOS scans, text recognition (Vision) and settings
-# stay on the device, and DocLens has no server, account or analytics.
+# stay on the device, and GoScan has no server, account or analytics.
 
 # GitHub Actions: giode ci -f writes .github/workflows/release.yml from this.
 # After regenerating, redo two edits in it: pin the CLI

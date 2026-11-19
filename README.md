@@ -1,4 +1,4 @@
-# DocLens
+# GoScan
 
 A document scanner for Android and iOS built with [Giode](https://github.com/xmhrnx/giode).
 Website: [xmhrnx.github.io/doclens](https://xmhrnx.github.io/doclens/).

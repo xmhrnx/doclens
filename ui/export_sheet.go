@@ -345,7 +345,7 @@ func (e *exportSheet) deliver(title string, files []exportFile, dest destination
 	switch dest {
 	case toPhotos:
 		for _, p := range paths {
-			if err := a.g.SaveToPhotos(ctx, p, "DocLens"); err != nil {
+			if err := a.g.SaveToPhotos(ctx, p, "GoScan"); err != nil {
 				return err
 			}
 		}

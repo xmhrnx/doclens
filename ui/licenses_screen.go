@@ -4,7 +4,7 @@ import (
 	"github.com/xmhrnx/giode"
 )
 
-// licensesScreen lists the open-source software DocLens is built with.
+// licensesScreen lists the open-source software GoScan is built with.
 type licensesScreen struct {
 	a    *App
 	list giode.Element
